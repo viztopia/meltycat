@@ -1,0 +1,16 @@
+/build/
+/macos/build/
+/archive/
+/docs/
+/ref/
+
+# Visual Studio and Windows Explorer
+/.vs/
+Thumbs.db
+Desktop.ini
+
+# Local preferences saved beside the executable
+meltycat-skin.txt
+meltycat-skin.txt.tmp
+meltycat-language.txt
+meltycat-language.txt.tmp
