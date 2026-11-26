@@ -1,0 +1,15 @@
+import Foundation
+
+enum Settings {
+    // Built-in values match the Windows build's meltycat-skin.txt; imported skins are "custom:<id>".
+    static var skin: SkinChoice {
+        get { UserDefaults.standard.string(forKey: "skin").flatMap(SkinChoice.init(setting:)) ?? .builtin(.black) }
+        set { UserDefaults.standard.set(newValue.setting, forKey: "skin") }
+    }
+
+    // Follows the system until a language is picked from the menu.
+    static var language: Language {
+        get { UserDefaults.standard.string(forKey: "language").flatMap(Language.init(setting:)) ?? Language.system() }
+        set { UserDefaults.standard.set(newValue.setting, forKey: "language") }
+    }
+}

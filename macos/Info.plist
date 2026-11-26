@@ -6,6 +6,21 @@
     <string>en</string>
     <key>CFBundleExecutable</key>
     <string>meltycat</string>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>meltycat skin</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>io.github.viztopia.meltycat.skin</string>
+            </array>
+        </dict>
+    </array>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
@@ -26,6 +41,26 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>io.github.viztopia.meltycat.skin</string>
+            <key>UTTypeDescription</key>
+            <string>meltycat skin</string>
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.json</string>
+            </array>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>meltycat</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright (c) 2026 viztopia. PolyForm Noncommercial License 1.0.0.</string>
 </dict>

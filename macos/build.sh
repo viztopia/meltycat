@@ -29,6 +29,11 @@ cp "$ROOT/Info.plist" "$CONTENTS/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$CONTENTS/Info.plist"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$CONTENTS/Info.plist"
 
+# Built-in skins and the AI guide are shared with other platforms in the repository's skins folder.
+mkdir -p "$RES_DIR/skins"
+cp "$ROOT/../skins/"*.meltycat "$RES_DIR/skins/"
+cp "$ROOT/../skins/AI-GUIDE.md" "$RES_DIR/AI-GUIDE.md"
+
 if [ -f "$ROOT/Resources/AppIcon.icns" ]; then
     cp "$ROOT/Resources/AppIcon.icns" "$RES_DIR/AppIcon.icns"
 fi
