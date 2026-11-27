@@ -46,7 +46,7 @@ struct Language: Equatable {
                  ["布偶貓", "布偶混血", "緬因貓", "西伯利亞貓", "橘虎斑", "黑貓", "狸花貓", "奶牛貓", "海膽（Uni）"],
                  "結束 meltycat"),
         Language("en", "English", "Language",
-                 ["Ragdoll", "Ragdoll Mix", "Maine Coon", "Siberian", "Orange Tabby", "Black Cat", "Li Hua", "Tuxedo Cat", "Uni"],
+                 ["Ragdoll", "Ragdoll Mix", "Maine Coon", "Siberian", "Orange Tabby", "Black", "Li Hua", "Tuxedo", "Uni"],
                  "Exit meltycat"),
         Language("ja", "日本語", "言語",
                  ["ラグドール", "ラグドールミックス", "メインクーン", "サイベリアン", "茶トラ", "黒猫", "キジトラ", "白黒猫", "ウニ（Uni）"],
