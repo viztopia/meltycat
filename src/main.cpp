@@ -28,7 +28,8 @@ constexpr auto noPerchInterval = std::chrono::milliseconds(250);
 
 Clock::duration PerchFrameInterval(const cat::Pose& pose, bool recentInput) {
     if (recentInput || pose.hunt > 0 || pose.brace > 0 || pose.chatter > 0 ||
-        pose.squint > 0 || pose.petSymbolCount > 0 || pose.tailMotion > 0) {
+        pose.squint > 0 || pose.petSymbolCount > 0 || pose.tailMotion > 0 ||
+        pose.dreamCount > 0 || pose.earTwitch > 0) {
         return frameInterval;
     }
     return pose.alert > 0 ? frameInterval * 2 : frameInterval * 4;
