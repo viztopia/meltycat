@@ -14,6 +14,7 @@
 #include <iterator>
 #include <list>
 #include <optional>
+#include <string_view>
 
 namespace {
 
@@ -172,16 +173,22 @@ HICON MakeTrayIcon(const cat::SkinSpec& skin) {
     return icon;
 }
 
+bool IsTrayOverflowClass(std::wstring_view name) {
+    return name == L"NotifyIconOverflowWindow" || name == L"TopLevelWindowForOverflowXamlIsland";
+}
+
+bool IsTrayClass(std::wstring_view name) {
+    return name == L"Shell_TrayWnd" || name == L"Shell_SecondaryTrayWnd" || IsTrayOverflowClass(name);
+}
+
 bool IsShellSurface(HWND window) {
     if (window == GetDesktopWindow() || window == GetShellWindow()) return true;
 
     wchar_t name[128]{};
     GetClassNameW(window, name, static_cast<int>(std::size(name)));
-    for (const wchar_t* shellClass : {L"Progman", L"WorkerW", L"Shell_TrayWnd",
-                                     L"Shell_SecondaryTrayWnd", L"MultitaskingViewFrame",
-                                     L"LockScreenBackstopFrame",
-                                     L"Windows.UI.Core.CoreWindow", L"NotifyIconOverflowWindow",
-                                     L"TopLevelWindowForOverflowXamlIsland"}) {
+    if (IsTrayClass(name)) return true;
+    for (const wchar_t* shellClass : {L"Progman", L"WorkerW", L"MultitaskingViewFrame",
+                                     L"LockScreenBackstopFrame", L"Windows.UI.Core.CoreWindow"}) {
         if (std::wcscmp(name, shellClass) == 0) return true;
     }
     return false;
@@ -355,6 +362,7 @@ private:
 struct App {
     HWND overlay = nullptr;
     HWND menuOwner = nullptr;
+    HWND trayPerch = nullptr;
     UINT taskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
     bool menuOpen = false;
     std::optional<DisplayedFrame> displayed;
@@ -384,16 +392,33 @@ struct App {
         }
     }
 
+    HWND PerchForeground(HWND foreground) {
+        if (!foreground || (!trayPerch && !displayed)) return foreground;
+        const HWND target = trayPerch ? trayPerch : displayed->placement.target;
+        const HWND root = GetAncestor(foreground, GA_ROOT);
+        if (root == menuOwner && menuOwner) return target;
+        if (root != target) {
+            wchar_t name[128]{};
+            GetClassNameW(root, name, static_cast<int>(std::size(name)));
+            // The overflow can take focus before Explorer sends an icon callback.
+            if (trayPerch ? IsTrayClass(name) : IsTrayOverflowClass(name)) return target;
+        }
+        trayPerch = nullptr;
+        return foreground;
+    }
+
     Clock::duration Frame(HWND foreground) {
         if (menuOpen) return frameInterval;
+        foreground = PerchForeground(foreground);
         Placement placement{};
         const bool observed = foreground != skinWindow.Handle() && FindPlacement(foreground, overlay, placement);
         const auto now = Clock::now();
         const int primaryButton = GetSystemMetrics(SM_SWAPBUTTON) ? VK_RBUTTON : VK_LBUTTON;
         const bool holding = observed && !presence.Shown() && (GetAsyncKeyState(primaryButton) & 0x8000) != 0;
         const auto event = presence.Update(now, observed ? placement.target : nullptr, holding);
-        if (event == PerchEvent::Disappear && displayed) {
-            poofs.emplace_back(displayed->placement, now, ReduceMotion(), &*displayed);
+        if (event == PerchEvent::Disappear) {
+            trayPerch = nullptr;
+            if (displayed) poofs.emplace_back(displayed->placement, now, ReduceMotion(), &*displayed);
         }
         if (event == PerchEvent::Appear) arrival = Arrival{now, ReduceMotion()};
         if (event == PerchEvent::Move) arrival.reset();
@@ -461,7 +486,11 @@ struct App {
         if (action == TrayMenu::Action::ChangeSkin) {
             skinWindow.Show();
         } else {
-            if (action == TrayMenu::Action::SkinChanged) RefreshTrayIcon();
+            if (action == TrayMenu::Action::SkinChanged) {
+                RefreshTrayIcon();
+                const HWND foreground = GetForegroundWindow();
+                Frame(foreground ? foreground : menuOwner);
+            }
             if (command) skinWindow.Refresh();
         }
     }
@@ -475,10 +504,16 @@ struct App {
         if (previousIcon) DestroyIcon(previousIcon);
     }
 
+    void RememberTrayPerch() {
+        // Explorer may already have taken focus by the time the tray callback runs.
+        trayPerch = displayed ? displayed->placement.target : nullptr;
+    }
+
     void ShowTrayMenu() {
         if (menuOpen) return;
         const HMENU menu = trayMenu.Create();
         if (!menu) return;
+        RememberTrayPerch();
         menuOpen = true;
         POINT menuPosition{};
         GetCursorPos(&menuPosition);
@@ -531,6 +566,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
         if (wParam == trayTimer) app->RegisterTrayIcon();
         return 0;
     case trayMessage:
+        if (lParam == WM_LBUTTONDOWN || lParam == WM_RBUTTONDOWN) app->RememberTrayPerch();
         if (lParam == WM_LBUTTONUP || lParam == WM_RBUTTONUP) app->ShowTrayMenu();
         return 0;
     case WM_DESTROY:

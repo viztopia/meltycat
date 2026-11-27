@@ -188,9 +188,6 @@ bool SkinLibrary::Delete(std::string_view id) {
 
 std::wstring SkinLibrary::Guide() {
     std::string text(Resource(ID_SKIN_GUIDE));
-    for (std::size_t i = text.find("⌘V"); i != std::string::npos; i = text.find("⌘V", i + 6)) {
-        text.replace(i, std::string_view("⌘V").size(), "Ctrl+V");
-    }
     const auto append = [&](const char* title, WORD id) {
         text += "\n\n## Appendix: ";
         text += title;

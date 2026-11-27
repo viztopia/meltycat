@@ -43,7 +43,7 @@ Grab the latest build from the [Releases page](../../releases/latest). Each rele
 3. The cat appears on your active window, and a cat icon appears in the system tray. If you do not see it, check the hidden icons under the `^` arrow.
 4. If Windows SmartScreen shows "Windows protected your PC", click **More info**, then **Run anyway**. The executable is not code-signed.
 
-To uninstall, choose **Exit** from the tray menu and delete the folder.
+To uninstall, choose **Exit** from the tray menu and delete the folder. Imported skins are kept in `%APPDATA%\meltycat\skins`, which you can delete too.
 
 ### macOS
 
@@ -59,7 +59,7 @@ To uninstall, quit from the menu bar and move `meltycat.app` to the Trash. Impor
 - **Pet:** move the pointer slowly over the cat's head, body, or paws.
 - **Sleep:** stop using the mouse and keyboard for a few seconds. Move the mouse or type a little to wake it.
 - **Menu:** right-click the tray icon (Windows) or open the menu bar icon (macOS) to change skins, pick a language, or exit.
-- **Custom skins:** choose **Change Skin…** from the menu, then drop a `.meltycat` file on the window, click **Choose File…**, or paste the skin text. Double-clicking a `.meltycat` file imports it too.
+- **Custom skins:** choose **Change Skin…** from the menu, then drop a `.meltycat` file on the window, click **Choose File…**, or paste the skin text. Double-clicking a `.meltycat` file imports it too. On Windows, launch meltycat once to register the file type for your account. If another app handles these files, use **Open with** and select `meltycat.exe`.
 
 ## Build from source
 

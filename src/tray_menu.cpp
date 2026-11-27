@@ -30,7 +30,7 @@ struct LanguageChoice {
 constexpr LanguageChoice languageChoices[]{
     {4, "zh-CN", L"简体中文", L"语言", {L"布偶猫", L"布偶混血", L"缅因猫", L"西伯利亚猫", L"橘虎斑", L"黑猫", L"狸花猫", L"奶牛猫", L"海胆（Uni）"}, L"退出 meltycat"},
     {5, "zh-TW", L"繁體中文", L"語言", {L"布偶貓", L"布偶混血", L"緬因貓", L"西伯利亞貓", L"橘虎斑", L"黑貓", L"狸花貓", L"奶牛貓", L"海膽（Uni）"}, L"結束 meltycat"},
-    {6, "en", L"English", L"Language", {L"Ragdoll", L"Ragdoll Mix", L"Maine Coon", L"Siberian", L"Orange Tabby", L"Black Cat", L"Li Hua", L"Tuxedo Cat", L"Uni"}, L"Exit meltycat"},
+    {6, "en", L"English", L"Language", {L"Ragdoll", L"Ragdoll Mix", L"Maine Coon", L"Siberian", L"Orange Tabby", L"Black", L"Li Hua", L"Tuxedo", L"Uni"}, L"Exit meltycat"},
     {7, "ja", L"日本語", L"言語", {L"ラグドール", L"ラグドールミックス", L"メインクーン", L"サイベリアン", L"茶トラ", L"黒猫", L"キジトラ", L"白黒猫", L"ウニ（Uni）"}, L"meltycat を終了"},
     {8, "ko", L"한국어", L"언어", {L"랙돌", L"랙돌 믹스", L"메인쿤", L"시베리안", L"치즈태비", L"검은 고양이", L"고등어태비", L"흑백 고양이", L"우니 (Uni)"}, L"meltycat 종료"},
     {11, "es", L"Español", L"Idioma",

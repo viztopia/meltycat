@@ -5,9 +5,10 @@ top edge of the active window. Read this whole guide, look at the photo, and pro
 
 Reply in the user's language. Give them the skin as a downloadable file named `<cat-name>.meltycat` if you can
 create files; otherwise put it in a single ```json code block so they can copy it. Either way the content is one
-JSON object and nothing else. The user imports it from the cat's menu bar icon → "Change Skin…" (drop the file,
-choose it, or press ⌘V to paste the text). If the app reports an error, it names the field: fix that field and
-send the whole file again. If the user sends back a screenshot of the preview, compare it with the photo and adjust.
+JSON object and nothing else. The user opens "Change Skin…" from the menu bar icon on macOS or the tray icon
+on Windows, then drops the file, chooses it, or pastes the text (⌘V on macOS or Ctrl+V on Windows). If the app
+reports an error, it names the field: fix that field and send the whole file again. If the user sends back a
+screenshot of the preview, compare it with the photo and adjust.
 
 ## How a skin works
 
