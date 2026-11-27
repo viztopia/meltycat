@@ -7,6 +7,11 @@ enum Settings {
         set { UserDefaults.standard.set(newValue.setting, forKey: "skin") }
     }
 
+    static var poof: PoofMode {
+        get { UserDefaults.standard.string(forKey: "poof").flatMap(PoofMode.init(setting:)) ?? .quiet }
+        set { UserDefaults.standard.set(newValue.setting, forKey: "poof") }
+    }
+
     // Follows the system until a language is picked from the menu.
     static var language: Language {
         get { UserDefaults.standard.string(forKey: "language").flatMap(Language.init(setting:)) ?? Language.system() }

@@ -168,3 +168,31 @@ extension Language {
                        delete: "Elimina", imported: "Importato", importFailed: "Impossibile importare", custom: "Personalizzati"),
     ]
 }
+
+// The poof submenu: its title and the modes in PoofMode.allCases order.
+struct PoofText {
+    var title: String
+    var modes: [String]
+}
+
+extension Language {
+    var poofText: PoofText { Self.poofTexts[setting] ?? Self.poofTexts["en"]! }
+
+    private static let poofTexts: [String: PoofText] = [
+        "zh-CN": PoofText(title: "出场烟雾", modes: ["安静一分钟后才有", "每次都有", "关闭"]),
+        "zh-TW": PoofText(title: "出場煙霧", modes: ["安靜一分鐘後才有", "每次都有", "關閉"]),
+        "en": PoofText(title: "Poof Cloud", modes: ["After a Quiet Minute", "Every Time", "Off"]),
+        "ja": PoofText(title: "登場の煙", modes: ["1分間静かになってから", "毎回", "オフ"]),
+        "ko": PoofText(title: "등장 연기", modes: ["1분간 조용한 뒤에만", "매번", "끄기"]),
+        "es": PoofText(title: "Nube de aparición", modes: ["Tras un minuto tranquilo", "Siempre", "Desactivada"]),
+        "fr": PoofText(title: "Nuage d’apparition", modes: ["Après une minute calme", "Toujours", "Désactivé"]),
+        "ru": PoofText(title: "Облачко появления", modes: ["После минуты затишья", "Всегда", "Выключено"]),
+        "th": PoofText(title: "ควันตอนปรากฏตัว", modes: ["หลังเงียบไป 1 นาที", "ทุกครั้ง", "ปิด"]),
+        "vi": PoofText(title: "Làn khói xuất hiện", modes: ["Sau một phút yên tĩnh", "Mỗi lần", "Tắt"]),
+        "de": PoofText(title: "Auftrittswolke", modes: ["Nach einer ruhigen Minute", "Jedes Mal", "Aus"]),
+        "id": PoofText(title: "Kepulan asap", modes: ["Setelah semenit tenang", "Setiap kali", "Mati"]),
+        "pt": PoofText(title: "Nuvem de entrada", modes: ["Após um minuto calmo", "Sempre", "Desligada"]),
+        "tr": PoofText(title: "Belirme bulutu", modes: ["Sakin bir dakikadan sonra", "Her seferinde", "Kapalı"]),
+        "it": PoofText(title: "Nuvoletta d’entrata", modes: ["Dopo un minuto di calma", "Ogni volta", "Disattivata"]),
+    ]
+}

@@ -578,6 +578,13 @@ do {
         check(all.allSatisfy { !$0.isEmpty }, "\(language.setting) has every skin window string")
         check(!all.joined().lowercased().contains("coat"), "\(language.setting) calls them skins, not coats")
     }
+    for language in Language.all {
+        let text = language.poofText
+        check(language.setting == "en" || text.title != Language(setting: "en")!.poofText.title,
+              "\(language.setting) has its own poof strings")
+        check(text.modes.count == PoofMode.allCases.count && !text.modes.contains(where: \.isEmpty),
+              "\(language.setting) names every poof mode")
+    }
     check(Language(setting: "zh-CN")?.skinText.changeSkin == "换皮肤…", "Chinese menu item")
     check(Language(setting: "en")?.skinText.changeSkin == "Change Skin…", "English menu item")
 }

@@ -39,6 +39,42 @@ struct PerchPresence {
     }
 }
 
+enum PoofMode: String, CaseIterable {
+    case quiet, always, off
+
+    init?(setting: String) { self.init(rawValue: setting) }
+    var setting: String { rawValue }
+}
+
+// The cloud greets a cat arriving or leaving after a quiet spell; while someone hops between windows the cat just
+// appears and goes. Any perch change restarts the quiet minute, so steady window switching never puffs.
+struct PoofGate {
+    static let quiet: TimeInterval = 60
+
+    private var last: TimeInterval?
+
+    mutating func cloud(for event: PerchEvent, at now: TimeInterval, mode: PoofMode) -> Bool {
+        defer { last = now }
+        if event == .move { return false }
+        switch mode {
+        case .always: return true
+        case .off: return false
+        case .quiet: return last.map { now - $0 >= Self.quiet } ?? true
+        }
+    }
+}
+
+enum PoofStyle {
+    case cloud, fade, none
+}
+
+// Without a puff the cat just appears or goes: a slow fade read as the app freezing. Reduce motion keeps a fade in
+// place of the cloud.
+func poofStyle(puff: Bool, reduceMotion: Bool) -> PoofStyle {
+    guard puff else { return .none }
+    return reduceMotion ? .fade : .cloud
+}
+
 struct PoofPuff {
     var center: CGPoint
     var radius: CGFloat
