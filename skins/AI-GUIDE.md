@@ -37,6 +37,7 @@ anything you are not changing on purpose: they were tuned by hand.
 | `tailBands` | no | Shorthair only: stripes across the tail, below |
 | `faceOutlineWidth` | no | Longhair face edge width, 0.5 to 2, default 1 |
 | `eyeShine` | no | 0 to 1, a small glint in the pupils; default 0 |
+| `missingFrontPaws` | no | For a cat that is missing a front leg: `["left"]`, `["right"]` or `["left", "right"]`. Sides are the cat's own, as its owner would say them: its right front paw is drawn on the viewer's left, its left front paw on the viewer's right. Only use this when the user says so or the photo clearly shows it |
 
 Unknown fields are ignored. Numbers outside a range are clamped. A wrong type, a bad colour or a malformed path
 rejects the whole file with a message naming the field.

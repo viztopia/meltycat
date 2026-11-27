@@ -211,16 +211,23 @@ enum CatRenderer {
     private static let nearContact = pt(107, 93)
 
     // Expects a y-down context in cat-local units, already offset by the top padding.
+    // A front paw the skin leaves out stays fully tucked. The far paw is the cat's right, the near paw its left.
+    private static func pawTucks(_ pose: Pose, _ spec: SkinSpec) -> (far: CGFloat, near: CGFloat) {
+        (spec.missingFrontPaws.contains(.right) ? 1 : pose.pawTuckLeft,
+         spec.missingFrontPaws.contains(.left) ? 1 : pose.pawTuckRight)
+    }
+
     static func draw(in g: CGContext, pose: Pose, spec: SkinSpec, headroom: CGFloat) {
         g.setShouldAntialias(true)
+        let tucks = pawTucks(pose, spec)
         let brace = upperBodyBrace(pose, headroom)
         let body = bodyOutline(brace, spec)
         drawTail(g, pose, spec, brace)
         let farPaw = drawFarFrontPaw(g, spec, lift: brace,
                                      foot: PawPress(contact: farContact, direction: -1, press: pose.brace),
-                                     tuck: pose.pawTuckLeft)
+                                     tuck: tucks.far)
         drawBody(g, body, farPaw, spec, brace)
-        drawNearFrontPaw(g, body, spec, lift: brace, press: pose.brace, tuck: pose.pawTuckRight)
+        drawNearFrontPaw(g, body, spec, lift: brace, press: pose.brace, tuck: tucks.near)
         if spec.isLonghair { drawLonghairRuff(g, brace, spec) }
         drawHead(g, pose, spec, lift: brace * fullHeadLift)
         drawDreams(g, pose)
@@ -262,12 +269,13 @@ enum CatRenderer {
 
         if bodyOutline(brace, spec).contains(cursor, using: .evenOdd) { return true }
         if cursor.y > 98 { return false }
-        if pose.pawTuckLeft < 0.5
+        let tucks = pawTucks(pose, spec)
+        if tucks.far < 0.5
             && farFrontPawOutline(brace, PawPress(contact: farContact, direction: -1, press: pose.brace))
                 .contains(cursor, using: .evenOdd) {
             return true
         }
-        if pose.pawTuckRight < 0.5
+        if tucks.near < 0.5
             && nearFrontPawOutline(brace, PawPress(contact: nearContact, direction: 1, press: pose.brace))
                 .contains(cursor, using: .evenOdd) {
             return true

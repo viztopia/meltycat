@@ -14,14 +14,16 @@ func check(_ condition: Bool, _ message: String) {
     }
 }
 
-func render(_ pose: Pose, skin: Skin = .black) -> [UInt8] {
+func render(_ pose: Pose, skin: Skin = .black) -> [UInt8] { render(pose, spec: BuiltinSkins.spec(skin)) }
+
+func render(_ pose: Pose, spec: SkinSpec) -> [UInt8] {
     let width = CatGeometry.width, height = CatGeometry.height
     let context = CGContext(data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
                             space: CGColorSpace(name: CGColorSpace.sRGB)!,
                             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
     context.translateBy(x: 0, y: CGFloat(height))
     context.scaleBy(x: 1, y: -1)
-    CatRenderer.draw(in: context, pose: pose, spec: BuiltinSkins.spec(skin), headroom: CGFloat(CatGeometry.topPadding))
+    CatRenderer.draw(in: context, pose: pose, spec: spec, headroom: CGFloat(CatGeometry.topPadding))
     let bytes = context.data!.assumingMemoryBound(to: UInt8.self)
     return Array(UnsafeBufferPointer(start: bytes, count: width * height * 4))
 }
@@ -518,6 +520,16 @@ do {
     check(error(edit([("shorthair", "sphynx")])).contains("body: unknown value"), "unknown body")
     check(error("[1, 2]").contains("JSON object") && error("{nope").contains("not valid JSON"), "not an object")
     check(error(edit([("\"name\": \"Test\"", "\"name\": \"  \"")])).contains("name: required"), "blank names")
+    check((try? parse(minimal).get())?.missingFrontPaws.isEmpty == true, "front paws are all there by default")
+    if case .success(let spec) = parse(edit([("\"body\"", "\"missingFrontPaws\": [\"right\"], \"body\"")])) {
+        check(spec.missingFrontPaws == [.right], "parses a missing front paw")
+    } else {
+        check(false, "parses a missing front paw")
+    }
+    check(error(edit([("\"body\"", "\"missingFrontPaws\": [\"left\", \"middle\"], \"body\"")])).contains("missingFrontPaws[1]"),
+          "names a bad paw side")
+    check(error(edit([("\"body\"", "\"missingFrontPaws\": \"right\", \"body\"")])).contains("missingFrontPaws: must be an array"),
+          "missing paws must be a list")
     if case .success(let spec) = parse(edit([("\"body\"", "\"sparkles\": 3, \"eyeShine\": 7, \"body\"")])) {
         check(spec.eyeShine == 1, "unknown fields are ignored and numbers clamped")
     } else {
@@ -611,6 +623,27 @@ do {
     } else {
         check(false, "saves a valid skin")
     }
+}
+
+do {
+    // A three-legged cat: a missing front paw stays tucked in every pose. The cat's right paw is the far one, drawn
+    // on the viewer's left; its left paw is the near one.
+    let black = BuiltinSkins.spec(.black)
+    var noRight = black; noRight.missingFrontPaws = [.right]
+    var noLeft = black; noLeft.missingFrontPaws = [.left]
+    var lookDown = Pose.awake; lookDown.cursor = CGPoint(x: -60, y: 120)
+    let braced = goldenPoses().first { $0.name == "braced" }!.pose
+    for (name, pose) in [("awake", lookDown), ("braced", braced)] {
+        var farTucked = pose; farTucked.pawTuckLeft = 1
+        var nearTucked = pose; nearTucked.pawTuckRight = 1
+        check(render(pose, spec: noRight) == render(farTucked, spec: black), "a missing right paw stays tucked (\(name))")
+        check(render(pose, spec: noLeft) == render(nearTucked, spec: black), "a missing left paw stays tucked (\(name))")
+        check(render(pose, spec: noRight) != render(pose, spec: black), "a missing paw changes the drawing (\(name))")
+    }
+    let farPaw = CGPoint(x: 71, y: 84)
+    let headroom = CGFloat(CatGeometry.topPadding)
+    check(CatRenderer.hitsPettingArea(farPaw, lookDown, spec: black, headroom: headroom), "the far paw is pettable")
+    check(!CatRenderer.hitsPettingArea(farPaw, lookDown, spec: noRight, headroom: headroom), "a missing paw is not")
 }
 
 poofTests()
