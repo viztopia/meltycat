@@ -29,6 +29,29 @@ func poofTests() {
     check(dragged.update(now: 0.9, observed: 3, holding: true) == nil, "stays away while the button is held")
     check(dragged.update(now: 0.92, observed: 3, holding: false) == .appear, "comes back as soon as the window is dropped")
 
+    // The cloud is for a cat arriving or leaving after a quiet spell; while someone hops between windows the cat just
+    // appears and goes. Any perch change, a jump included, restarts the quiet minute.
+    var quiet = PoofGate()
+    check(quiet.cloud(for: .appear, at: 0, mode: .quiet), "the first appearance puffs")
+    check(!quiet.cloud(for: .disappear, at: 20, mode: .quiet), "leaving soon after only fades")
+    check(!quiet.cloud(for: .appear, at: 75, mode: .quiet), "the quiet minute counts from the last change, not the last puff")
+    check(quiet.cloud(for: .disappear, at: 135, mode: .quiet), "puffs again after a quiet minute")
+    check(!quiet.cloud(for: .move, at: 200, mode: .quiet), "a jump never puffs")
+    check(!quiet.cloud(for: .appear, at: 230, mode: .quiet), "a jump restarts the quiet minute")
+    var always = PoofGate()
+    check(always.cloud(for: .appear, at: 0, mode: .always) && always.cloud(for: .disappear, at: 1, mode: .always),
+          "always puffs every time")
+    var off = PoofGate()
+    check(!off.cloud(for: .appear, at: 0, mode: .off) && !off.cloud(for: .disappear, at: 100, mode: .off), "off never puffs")
+    // Without a cloud the cat just appears or goes: a slow fade read as the app freezing. Reduce motion keeps its
+    // fade in place of the cloud.
+    check(poofStyle(puff: false, reduceMotion: false) == .none, "no puff: the cat just appears or goes")
+    check(poofStyle(puff: false, reduceMotion: true) == .none, "no puff stays instant under reduce motion")
+    check(poofStyle(puff: true, reduceMotion: false) == .cloud, "a puff shows the cloud")
+    check(poofStyle(puff: true, reduceMotion: true) == .fade, "reduce motion swaps the cloud for a fade")
+    check(PoofMode.allCases == [.quiet, .always, .off], "menu order: quiet minute, always, off")
+    check(PoofMode(setting: "always") == .always && PoofMode(setting: "x") == nil, "poof setting lookup")
+
     // The cloud hides the swap, but stays light: few billows of uneven size that break up at different times.
     check(poofCatAlpha(appearing: true, progress: 0) == 0 && poofCatAlpha(appearing: true, progress: 1) == 1,
           "an appearing cat goes from hidden to shown")

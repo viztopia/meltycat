@@ -23,6 +23,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var presence = PerchPresence()
     var poofs: [PoofWindow] = []
     var appearStart: TimeInterval?
+    var appearCloud = false
+    var poofGate = PoofGate()
     var lookingUp = false
     var screensAsleep = false
     var appearanceObservation: NSKeyValueObservation?
@@ -182,6 +184,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             item.state = choice == language ? .on : .off
         }
         menu.addItem(withTitle: language.menuLabel, action: nil, keyEquivalent: "").submenu = languages
+        let poofMenu = NSMenu()
+        for (mode, title) in zip(PoofMode.allCases, language.poofText.modes) {
+            let item = poofMenu.addItem(withTitle: title, action: #selector(choosePoof(_:)), keyEquivalent: "")
+            item.target = self
+            item.representedObject = mode.setting
+            item.state = mode == Settings.poof ? .on : .off
+        }
+        menu.addItem(withTitle: language.poofText.title, action: nil, keyEquivalent: "").submenu = poofMenu
         menu.addItem(.separator())
         menu.addItem(withTitle: language.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem?.menu = menu
@@ -194,6 +204,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func chooseLanguage(_ sender: NSMenuItem) {
         guard let setting = sender.representedObject as? String, let language = Language(setting: setting) else { return }
         Settings.language = language
+        rebuildMenu()
+    }
+
+    @objc func choosePoof(_ sender: NSMenuItem) {
+        guard let setting = sender.representedObject as? String, let mode = PoofMode(setting: setting) else { return }
+        Settings.poof = mode
         rebuildMenu()
     }
 
@@ -230,18 +246,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var reduceMotion: Bool { NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
 
     // The leaving cat is drawn in the puff's own window, so the overlay can already be elsewhere.
-    func puffOut(_ displayed: DisplayedFrame, now: TimeInterval) {
+    func puffOut(_ displayed: DisplayedFrame, now: TimeInterval, cloud: Bool) {
         let placement = displayed.placement
         let frame = flipToTopLeft(CGRect(origin: placement.origin, size: placement.size), primaryHeight: primaryScreenHeight)
         let poof = PoofWindow(around: frame, placement: placement, start: now, leaving: (displayed.pose, spec),
-                              reduceMotion: reduceMotion)
+                              reduceMotion: !cloud)
         poof.orderFrontRegardless()
         poof.display()
         poofs.append(poof)
     }
 
     func puffIn(around frame: NSRect, placement: Placement, now: TimeInterval) {
-        guard !reduceMotion else { return }
         let poof = PoofWindow(around: frame, placement: placement, start: now, leaving: nil, reduceMotion: false)
         poof.orderFrontRegardless()
         poofs.append(poof)
@@ -255,9 +270,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lastFrameTime = now
         let holding = CGEventSource.buttonState(.combinedSessionState, button: .left)
         let event = presence.update(now: now, observed: observed?.windowID, holding: holding)
-        if event == .disappear, let displayed { puffOut(displayed, now: now) }
+        let puff = event.map { poofGate.cloud(for: $0, at: now, mode: Settings.poof) } == true
+        let style = poofStyle(puff: puff, reduceMotion: reduceMotion)
+        if event == .disappear, style != .none, let displayed { puffOut(displayed, now: now, cloud: style == .cloud) }
         let appearing = event == .appear
-        if appearing { appearStart = now }
+        if appearing {
+            appearCloud = style == .cloud
+            appearStart = style == .none ? nil : now
+            if style == .none { overlay.alphaValue = 1 }
+        }
         poofs = poofs.filter { $0.advance(to: now) }
 
         // Until a change has settled the cat stays where it was last drawn.
@@ -303,7 +324,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let progress = max(0, CGFloat((now - start) / poofDuration))
             let landed = progress >= 1
             if landed { appearStart = nil }
-            overlay.alphaValue = landed ? 1 : reduceMotion ? progress : poofCatAlpha(appearing: true, progress: progress)
+            overlay.alphaValue = landed ? 1 : appearCloud ? poofCatAlpha(appearing: true, progress: progress) : progress
         }
         let effects = !poofs.isEmpty || appearStart != nil
         schedule(effects ? 1.0 / 60 : frameInterval(perched: true, pose: pose, secondsSinceInput: idle))
@@ -318,7 +339,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         overlay.catView.needsDisplay = true
         if newPerch { overlay.orderFrontRegardless() }
         // Ordered after the overlay so the cloud is in front of the cat it hides.
-        if appearing { puffIn(around: frame, placement: placement, now: now) }
+        if appearing && appearCloud { puffIn(around: frame, placement: placement, now: now) }
         displayed = DisplayedFrame(windowID: perch.windowID, placement: placement, pose: pose, skin: skinID,
                                    resting: resting)
     }
