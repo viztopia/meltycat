@@ -633,6 +633,17 @@ struct PawPress {
     float cosine;
 };
 
+struct FrontPawTucks {
+    float farTuck;
+    float nearTuck;
+};
+
+FrontPawTucks PawTucks(const Pose& pose, const SkinSpec& skin) {
+    // Skin sides are the cat's own. Its right front paw is the far paw.
+    return {skin.missingRightFrontPaw ? 1.0f : pose.pawTuckLeft,
+            skin.missingLeftFrontPaw ? 1.0f : pose.pawTuckRight};
+}
+
 // Shrinks a paw toward the belly line, narrowing it as it retracts.
 void TuckMatrix(Matrix& matrix, float centerX, float tuck) {
     matrix.Translate(centerX, 74.0f);
@@ -814,13 +825,14 @@ bool HitsPettingArea(PointF cursor, const Pose& pose, const SkinSpec& skin, floa
     if (shape.IsVisible(cursor)) return true;
     if (cursor.Y > 98) return false;
 
+    const auto [farTuck, nearTuck] = PawTucks(pose, skin);
     shape.Reset();
-    if (pose.pawTuckLeft < 0.5f) {
+    if (farTuck < 0.5f) {
         FarFrontPawOutline(shape, brace, PawPress({70, 90}, -1.0f, pose.brace));
         if (shape.IsVisible(cursor)) return true;
         shape.Reset();
     }
-    if (pose.pawTuckRight < 0.5f) {
+    if (nearTuck < 0.5f) {
         NearFrontPawOutline(shape, brace, PawPress({107, 93}, 1.0f, pose.brace));
         if (shape.IsVisible(cursor)) return true;
     }
@@ -839,9 +851,10 @@ void Draw(Graphics& g, const Pose& pose, const SkinSpec& skin, float headroom) {
     BodyOutline(body, upperBodyBrace, skin);
     DrawTail(g, pose, skin, upperBodyBrace);
     const PawPress farFoot({70, 90}, -1.0f, pose.brace);
-    DrawFarFrontPaw(g, farPaw, skin, upperBodyBrace, farFoot, pose.pawTuckLeft);
+    const auto [farTuck, nearTuck] = PawTucks(pose, skin);
+    DrawFarFrontPaw(g, farPaw, skin, upperBodyBrace, farFoot, farTuck);
     DrawBody(g, body, farPaw, skin, upperBodyBrace);
-    DrawNearFrontPaw(g, body, skin, upperBodyBrace, pose.brace, pose.pawTuckRight);
+    DrawNearFrontPaw(g, body, skin, upperBodyBrace, pose.brace, nearTuck);
     if (skin.longhair) DrawLonghairRuff(g, upperBodyBrace, skin);
     DrawHead(g, pose, skin, upperBodyBrace * fullHeadLift);
     DrawDreams(g, pose);
