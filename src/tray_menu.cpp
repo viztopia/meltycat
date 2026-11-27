@@ -18,6 +18,12 @@ constexpr struct { UINT command; const char* setting; } skinChoices[]{
     {2, "black"}, {21, "li-hua"}, {10, "classic-tuxedo"}, {3, "tuxedo"}
 };
 
+constexpr struct { UINT command; const char* setting; PoofMode mode; } poofChoices[]{
+    {27, "quiet", PoofMode::Quiet},
+    {28, "always", PoofMode::Always},
+    {29, "off", PoofMode::Off},
+};
+
 struct LanguageChoice {
     UINT command;
     const char* setting;
@@ -86,6 +92,31 @@ constexpr SkinText skinTexts[]{
 };
 
 static_assert(std::size(skinTexts) == std::size(languageChoices));
+
+struct PoofText {
+    const wchar_t* title;
+    const wchar_t* modes[std::size(poofChoices)];
+};
+
+constexpr PoofText poofTexts[]{
+    {L"出场烟雾", {L"安静一分钟后才有", L"每次都有", L"关闭"}},
+    {L"出場煙霧", {L"安靜一分鐘後才有", L"每次都有", L"關閉"}},
+    {L"Poof Cloud", {L"After a Quiet Minute", L"Every Time", L"Off"}},
+    {L"登場の煙", {L"1分間静かになってから", L"毎回", L"オフ"}},
+    {L"등장 연기", {L"1분간 조용한 뒤에만", L"매번", L"끄기"}},
+    {L"Nube de aparición", {L"Tras un minuto tranquilo", L"Siempre", L"Desactivada"}},
+    {L"Nuage d’apparition", {L"Après une minute calme", L"Toujours", L"Désactivé"}},
+    {L"Облачко появления", {L"После минуты затишья", L"Всегда", L"Выключено"}},
+    {L"ควันตอนปรากฏตัว", {L"หลังเงียบไป 1 นาที", L"ทุกครั้ง", L"ปิด"}},
+    {L"Làn khói xuất hiện", {L"Sau một phút yên tĩnh", L"Mỗi lần", L"Tắt"}},
+    {L"Auftrittswolke", {L"Nach einer ruhigen Minute", L"Jedes Mal", L"Aus"}},
+    {L"Kepulan asap", {L"Setelah semenit tenang", L"Setiap kali", L"Mati"}},
+    {L"Nuvem de entrada", {L"Após um minuto calmo", L"Sempre", L"Desligada"}},
+    {L"Belirme bulutu", {L"Sakin bir dakikadan sonra", L"Her seferinde", L"Kapalı"}},
+    {L"Nuvoletta d’entrata", {L"Dopo un minuto di calma", L"Ogni volta", L"Disattivata"}},
+};
+
+static_assert(std::size(poofTexts) == std::size(languageChoices));
 
 std::string ReadSetting(const std::filesystem::path& path) {
     std::ifstream config(path);
@@ -171,6 +202,7 @@ TrayMenu::TrayMenu(const SkinLibrary& library) : library_(library) {
         const auto directory = executable.parent_path();
         skinSettings_ = directory / L"meltycat-skin.txt";
         languageSettings_ = directory / L"meltycat-language.txt";
+        poofSettings_ = directory / L"meltycat-poof.txt";
     }
     skinId_ = ReadSetting(skinSettings_);
     skin_ = library_.Find(skinId_);
@@ -179,6 +211,13 @@ TrayMenu::TrayMenu(const SkinLibrary& library) : library_(library) {
         skin_ = library_.Find(skinId_);
     }
     languageIndex_ = LoadLanguage(languageSettings_);
+    const auto poofSetting = ReadSetting(poofSettings_);
+    for (const auto& choice : poofChoices) {
+        if (poofSetting == choice.setting) {
+            poofMode_ = choice.mode;
+            break;
+        }
+    }
 }
 
 const SkinText& TrayMenu::Text() const { return skinTexts[languageIndex_]; }
@@ -229,6 +268,17 @@ HMENU TrayMenu::Create() const {
             DestroyMenu(languages);
         }
     }
+    if (const HMENU poof = CreatePopupMenu()) {
+        const auto& labels = poofTexts[languageIndex_];
+        for (std::size_t i = 0; i < std::size(poofChoices); ++i) {
+            const auto& choice = poofChoices[i];
+            const UINT flags = MF_STRING | (poofMode_ == choice.mode ? MF_CHECKED : MF_UNCHECKED);
+            AppendMenuW(poof, flags, choice.command, labels.modes[i]);
+        }
+        if (!AppendMenuW(menu, MF_POPUP, reinterpret_cast<UINT_PTR>(poof), labels.title)) {
+            DestroyMenu(poof);
+        }
+    }
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu, MF_STRING, exitCommand, language.exitLabel);
     return menu;
@@ -243,6 +293,12 @@ TrayMenu::Action TrayMenu::Select(UINT command) {
         if (choice.command != command) continue;
         languageIndex_ = i;
         SaveSetting(languageSettings_, choice.setting);
+        return Action::None;
+    }
+    for (const auto& choice : poofChoices) {
+        if (choice.command != command) continue;
+        poofMode_ = choice.mode;
+        SaveSetting(poofSettings_, choice.setting);
         return Action::None;
     }
     for (const auto& choice : skinChoices) {

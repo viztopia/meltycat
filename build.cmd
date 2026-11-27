@@ -36,6 +36,11 @@ if /i "%~1"=="--test" (
     if errorlevel 1 goto failed
     build\windows-tripod-paws.exe
     if errorlevel 1 goto failed
+    cl %MELTYCAT_CXXFLAGS% /Fo:build\ /Fe:build\windows-poof-modes.exe tests\windows-poof-modes.cpp ^
+       build\poof.obj /link /MACHINE:X64 /SUBSYSTEM:CONSOLE gdiplus.lib
+    if errorlevel 1 goto failed
+    build\windows-poof-modes.exe
+    if errorlevel 1 goto failed
 )
 popd
 exit /b 0

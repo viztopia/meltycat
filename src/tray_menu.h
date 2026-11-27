@@ -1,5 +1,6 @@
 #pragma once
 
+#include "poof.h"
 #include "skin_library.h"
 
 #include <cstddef>
@@ -25,6 +26,7 @@ public:
 
     const Skin& ActiveSkin() const { return skin_; }
     const std::string& SkinId() const { return skinId_; }
+    PoofMode PoofCloudMode() const { return poofMode_; }
     const SkinText& Text() const;
     bool SetSkin(std::string_view id);
     HMENU Create() const;
@@ -33,8 +35,10 @@ public:
 private:
     std::filesystem::path skinSettings_;
     std::filesystem::path languageSettings_;
+    std::filesystem::path poofSettings_;
     const SkinLibrary& library_;
     std::string skinId_;
     Skin skin_;
     std::size_t languageIndex_;
+    PoofMode poofMode_ = PoofMode::Quiet;
 };
