@@ -34,7 +34,7 @@
 
 There are a few more little details. We'll leave those for you to find!
 
-15 interface languages.
+Nine built-in skins, 15 interface languages.
 
 ## Make your own cat
 
