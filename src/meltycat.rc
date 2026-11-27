@@ -1,5 +1,7 @@
 #include "skin_resources.h"
 
+ID_APP_ICON ICON "assets\\meltycat.ico"
+
 ID_SKIN_RAGDOLL RCDATA "skins\\ragdoll.meltycat"
 ID_SKIN_RAGDOLL_MIX RCDATA "skins\\ragdoll-mix.meltycat"
 ID_SKIN_MAINE_COON RCDATA "skins\\maine-coon.meltycat"
