@@ -17,8 +17,8 @@ constexpr float sustainHuntSpeed = 700.0f;
 constexpr float sustainHuntMotionTime = 0.085f;
 constexpr auto huntHold = 1250ms;
 constexpr auto huntMotionGap = 240ms;
-constexpr float levelTwoDelay = 3.0f;
-constexpr float levelThreeDelay = 5.0f;
+constexpr float levelTwoDelay = 2.0f;
+constexpr float levelThreeDelay = 3.5f;
 constexpr auto levelTwoHold = 2s;
 constexpr auto levelTwoResumeGrace = 120ms;
 constexpr float huntRelease = 0.55f;
@@ -61,11 +61,11 @@ void Animation::BeginSleep(Clock::time_point now) {
     dreamCount_ = 0;
     nextEarTwitch_ = nextDream_ + earTwitchInterval_(random_);
     earTwitchCount_ = 0;
-    // 40% of naps keep both paws out, 30% tuck one, 30% tuck both, all before the tail begins to slow.
+    // Forty percent keep both paws out. The remaining naps split evenly between the three tucks.
     const int roll = pawTuckRoll_(random_);
     pawTuckAt_ = pawTuckDelay_(random_);
-    tuckRight_ = roll >= 7 || (roll >= 4 && pickRightPaw_(random_));
-    tuckLeft_ = roll >= 7 || (roll >= 4 && !tuckRight_);
+    tuckLeft_ = (roll >= 4 && roll < 6) || roll >= 8;
+    tuckRight_ = roll >= 6;
 }
 
 void Animation::ObserveHunt(Clock::time_point now, float elapsed, Gdiplus::PointF delta, float distance) {

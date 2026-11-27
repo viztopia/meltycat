@@ -80,7 +80,6 @@ private:
     std::bernoulli_distribution twitchRightEar_{0.5};
     std::uniform_int_distribution<int> pawTuckRoll_{0, 9};
     std::uniform_real_distribution<float> pawTuckDelay_{1.5f, 4.0f};
-    std::bernoulli_distribution pickRightPaw_{0.5};
     std::uniform_real_distribution<float> tailPoseInterval_{28.0f, 52.0f};
     std::uniform_int_distribution<int> waveCycleCount_{1, 2};
     float nextCurl_ = curlInterval_(random_);
