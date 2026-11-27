@@ -31,6 +31,8 @@ struct SkinSpec {
     var eyeShine: CGFloat
     var marks: [Mark]
     var tailBands: [TailBand]
+    // Sides are the cat's own: its right front paw is the far one, drawn on the viewer's left.
+    var missingFrontPaws: Set<Mark.Side>
 
     var isLonghair: Bool { body == .longhair }
     // The colour that fills most of the head, which decides how the menu bar icon is outlined.
@@ -134,6 +136,12 @@ extension SkinSpec {
         face = try fields.string("face").map { try fields.choice(Face(rawValue: $0), "face", $0) } ?? .fluffy
         faceOutlineWidth = (try fields.number("faceOutlineWidth")).map { min(max($0, 0.5), 2) } ?? 1
         eyeShine = (try fields.number("eyeShine")).map { min(max($0, 0), 1) } ?? 0
+        missingFrontPaws = Set(try (fields.array("missingFrontPaws") ?? []).enumerated().map { index, item in
+            guard let text = item as? String, let side = Mark.Side(rawValue: text) else {
+                throw SkinError("missingFrontPaws[\(index)]: expected \"left\" or \"right\"")
+            }
+            return side
+        })
 
         guard let paletteObject = root["palette"] else { throw SkinError("palette: required") }
         guard let paletteFields = paletteObject as? [String: Any] else { throw SkinError("palette: must be an object") }
