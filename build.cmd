@@ -12,10 +12,16 @@ call "%MELTYCAT_VS%\VC\Auxiliary\Build\vcvars64.bat" >nul
 if errorlevel 1 goto failed
 
 :compile
+rem MSVC 14.51 and later reject the legacy coroutine header selected by C++/WinRT in C++17.
+set "MELTYCAT_COROUTINES="
+for /f "tokens=1,2 delims=." %%A in ("%VCToolsVersion%") do (
+    if %%A GTR 14 set "MELTYCAT_COROUTINES=/await:strict"
+    if %%A EQU 14 if %%B GEQ 51 set "MELTYCAT_COROUTINES=/await:strict"
+)
 if not exist build mkdir build
 rc /nologo /fo build\meltycat.res src\meltycat.rc
 if errorlevel 1 goto failed
-cl /nologo /std:c++17 /O2 /MT /EHsc /W4 /WX /utf-8 /DUNICODE /D_UNICODE /DNOMINMAX /D_WIN32_WINNT=0x0A00 ^
+cl /nologo /std:c++17 %MELTYCAT_COROUTINES% /O2 /MT /EHsc /W4 /WX /utf-8 /DUNICODE /D_UNICODE /DNOMINMAX /D_WIN32_WINNT=0x0A00 ^
    /Fo:build\ /Fe:build\meltycat.exe src\main.cpp src\cat.cpp src\animation.cpp src\tray_menu.cpp ^
    src\skin_spec.cpp src\skin_library.cpp src\skin_window.cpp src\poof.cpp build\meltycat.res ^
    /link /MACHINE:X64 /SUBSYSTEM:WINDOWS /MANIFEST:EMBED /MANIFESTINPUT:src\meltycat.manifest ^
