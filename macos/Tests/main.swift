@@ -378,6 +378,18 @@ do {
     check(frameInterval(perched: true, pose: stillTail, secondsSinceInput: 20) == 1.0 / 30, "half rate when awake and still")
     check(frameInterval(perched: true, pose: asleep, secondsSinceInput: 30) == 1.0 / 15, "quarter rate asleep")
     check(frameInterval(perched: true, pose: asleep, secondsSinceInput: 0.1) == 1.0 / 60, "input while asleep wakes the rate")
+    var dozing = asleep
+    dozing.alert = 0.5; dozing.eyeOpen = 0.5; dozing.tailMotion = 1
+    check(frameInterval(perched: true, pose: dozing, secondsSinceInput: 7) == 1.0 / 60, "full rate while dozing off")
+    var settling = asleep
+    settling.tailMotion = 0.3
+    check(frameInterval(perched: true, pose: settling, secondsSinceInput: 15) == 1.0 / 60, "full rate until the tail is still")
+    var dreaming = asleep
+    dreaming.dreamCount = 2; dreaming.dreamAge = 0.5
+    check(frameInterval(perched: true, pose: dreaming, secondsSinceInput: 25) == 1.0 / 60, "full rate while Zs float")
+    var twitching = asleep
+    twitching.earTwitch = 0.6
+    check(frameInterval(perched: true, pose: twitching, secondsSinceInput: 30) == 1.0 / 60, "full rate during an ear twitch")
 }
 
 do {
