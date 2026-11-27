@@ -15,7 +15,6 @@ struct SkinText {
     const wchar_t* remove;
     const wchar_t* imported;
     const wchar_t* importFailed;
-    const wchar_t* custom;
 };
 
 class TrayMenu {
