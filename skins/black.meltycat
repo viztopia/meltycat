@@ -1,0 +1,17 @@
+{
+ "format": "meltycat-skin",
+ "formatVersion": 1,
+ "name": "Black",
+ "author": "meltycat",
+ "body": "shorthair",
+ "palette": {
+  "coat": "#19191D",
+  "iris": "#CFF54F",
+  "pupil": "#19191D",
+  "eyelid": "#9AAB4F",
+  "whisker": "#9FA2A5F0",
+  "crease": "#838A8CD7",
+  "mouth": "#7B5965"
+ },
+ "marks": []
+}

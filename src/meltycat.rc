@@ -1,0 +1,12 @@
+#include "skin_resources.h"
+
+ID_SKIN_RAGDOLL RCDATA "skins\\ragdoll.meltycat"
+ID_SKIN_RAGDOLL_MIX RCDATA "skins\\ragdoll-mix.meltycat"
+ID_SKIN_MAINE_COON RCDATA "skins\\maine-coon.meltycat"
+ID_SKIN_SIBERIAN RCDATA "skins\\siberian.meltycat"
+ID_SKIN_ORANGE_TABBY RCDATA "skins\\orange-tabby.meltycat"
+ID_SKIN_BLACK RCDATA "skins\\black.meltycat"
+ID_SKIN_LI_HUA RCDATA "skins\\li-hua.meltycat"
+ID_SKIN_CLASSIC_TUXEDO RCDATA "skins\\classic-tuxedo.meltycat"
+ID_SKIN_TUXEDO RCDATA "skins\\tuxedo.meltycat"
+ID_SKIN_GUIDE RCDATA "skins\\AI-GUIDE.md"

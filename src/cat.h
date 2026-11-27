@@ -1,7 +1,6 @@
 #pragma once
 
-#include <windows.h>
-#include <gdiplus.h>
+#include "skin_spec.h"
 
 #include <string_view>
 
@@ -19,12 +18,6 @@ constexpr float chatterMarkLifetime = 0.48f;
 constexpr float chatterMarkStagger = 0.08f;
 constexpr float petSymbolLifetime = 1.55f;
 constexpr float petSymbolStagger = 0.23f;
-
-enum class Skin { Black, Uni, OrangeTabby, Tuxedo, LiHua, Ragdoll, MaineCoon, Siberian };
-
-constexpr bool IsLonghair(Skin skin) {
-    return skin == Skin::Ragdoll || skin == Skin::MaineCoon || skin == Skin::Siberian;
-}
 
 struct Pose {
     Gdiplus::PointF cursor;
@@ -53,8 +46,8 @@ struct Pose {
     bool petIsNote = false;
 };
 
-bool HitsPettingArea(Gdiplus::PointF cursor, const Pose& pose, Skin skin, float headroom);
-void Draw(Gdiplus::Graphics& graphics, const Pose& pose, Skin skin, float headroom);
-void DrawTrayIcon(Gdiplus::Graphics& graphics, Skin skin = Skin::Black);
+bool HitsPettingArea(Gdiplus::PointF cursor, const Pose& pose, const SkinSpec& skin, float headroom);
+void Draw(Gdiplus::Graphics& graphics, const Pose& pose, const SkinSpec& skin, float headroom);
+void DrawTrayIcon(Gdiplus::Graphics& graphics, const SkinSpec& skin);
 
 } // namespace cat
