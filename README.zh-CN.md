@@ -15,12 +15,12 @@
 
 <table>
   <tr>
-    <td align="center"><img src="assets/preview-watch.gif" width="400" alt="橘猫趴在窗口右上角，盯着鼠标"><br>盯着 · 橘虎斑</td>
-    <td align="center"><img src="assets/preview-hunt-level1.gif" width="400" alt="布偶猫注意到鼠标在晃"><br>捕猎 · 布偶猫</td>
+    <td align="center"><img src="assets/preview-watch.gif" width="380" alt="橘猫趴在窗口右上角，盯着鼠标"><br>盯着 · 橘虎斑</td>
+    <td align="center"><img src="assets/preview-hunt-level1.gif" width="380" alt="布偶猫注意到鼠标在晃"><br>捕猎 · 布偶猫</td>
   </tr>
   <tr>
-    <td align="center"><img src="assets/preview-hunt-level3.gif" width="400" alt="奶牛猫认真起来了"><br>认真捕猎 · 奶牛猫</td>
-    <td align="center"><img src="assets/preview-sleep.gif" width="400" alt="缅因猫在窗沿上打起瞌睡"><br>打盹 · 缅因猫</td>
+    <td align="center"><img src="assets/preview-hunt-level3.gif" width="380" alt="奶牛猫认真起来了"><br>认真捕猎 · 奶牛猫</td>
+    <td align="center"><img src="assets/preview-sleep.gif" width="380" alt="缅因猫在窗沿上打起瞌睡"><br>打盹 · 缅因猫</td>
   </tr>
 </table>
 

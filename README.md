@@ -15,12 +15,12 @@
 
 <table>
   <tr>
-    <td align="center"><img src="assets/preview-watch.gif" width="400" alt="An orange tabby on a window corner watches the pointer"><br>Watching · Orange Tabby</td>
-    <td align="center"><img src="assets/preview-hunt-level1.gif" width="400" alt="A ragdoll notices the pointer shaking"><br>Hunting · Ragdoll</td>
+    <td align="center"><img src="assets/preview-watch.gif" width="380" alt="An orange tabby on a window corner watches the pointer"><br>Watching · Orange Tabby</td>
+    <td align="center"><img src="assets/preview-hunt-level1.gif" width="380" alt="A ragdoll notices the pointer shaking"><br>Hunting · Ragdoll</td>
   </tr>
   <tr>
-    <td align="center"><img src="assets/preview-hunt-level3.gif" width="400" alt="A tuxedo cat gets serious about the hunt"><br>Hunting, for real · Tuxedo</td>
-    <td align="center"><img src="assets/preview-sleep.gif" width="400" alt="A Maine Coon dozes off on the window edge"><br>Napping · Maine Coon</td>
+    <td align="center"><img src="assets/preview-hunt-level3.gif" width="380" alt="A tuxedo cat gets serious about the hunt"><br>Hunting, for real · Tuxedo</td>
+    <td align="center"><img src="assets/preview-sleep.gif" width="380" alt="A Maine Coon dozes off on the window edge"><br>Napping · Maine Coon</td>
   </tr>
 </table>
 
