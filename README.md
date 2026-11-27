@@ -74,7 +74,9 @@ To uninstall, quit from the menu bar and move `meltycat.app` to the Trash. Impor
 
 ## License
 
-MeltyCat is released under the [MIT License](LICENSE). Use it, change it, share it, and make it your own cat.
+MeltyCat is open source under the [MIT License](LICENSE). Use it, change it, share it, and make it your own cat.
+
+Made something fun with MeltyCat, or want to work together? Tell us in [Issues](../../issues).
 
 ## Acknowledgments
 

@@ -72,9 +72,11 @@
 
 **macOS：** 安装 Xcode 或 Xcode 命令行工具，运行 `bash macos/build.sh`，然后打开 `macos/build/meltycat.app`。
 
-## 许可证
+## 开源许可证
 
-MeltyCat 采用 [MIT 许可证](LICENSE)。欢迎使用、修改、分享，也欢迎把它变成你自己的猫。
+MeltyCat 是开源软件，采用 [MIT 许可证](LICENSE)。欢迎使用、修改、分享，也欢迎把它变成你自己的猫。
+
+用 MeltyCat 做了什么好玩的，或者想一起合作，欢迎在 [Issues](../../issues) 里告诉我们。
 
 ## 致谢
 
