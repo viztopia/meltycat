@@ -49,6 +49,8 @@ struct SkinSpec {
     bool longhair = false;
     bool tufted = false;
     bool roundFace = false;
+    bool missingLeftFrontPaw = false;
+    bool missingRightFrontPaw = false;
     Gdiplus::Color coat, face, ear, tail, ruff;
     std::optional<Gdiplus::Color> outline, ruffEdge, faceOutline;
     float faceOutlineWidth = 1;

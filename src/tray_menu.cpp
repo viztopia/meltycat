@@ -54,35 +54,35 @@ constexpr LanguageChoice languageChoices[]{
 
 constexpr SkinText skinTexts[]{
     {L"换皮肤…", L"把皮肤文件拖到这里，或按 Ctrl+V 粘贴皮肤内容", L"选择文件…", L"粘贴",
-     L"复制 AI 指南", L"已复制。把指南和猫的照片一起发给 AI，再把它生成的内容导入这里。", L"删除", L"已导入", L"无法导入", L"自定义"},
+     L"复制 AI 指南", L"已复制。把指南和猫的照片一起发给 AI，再把它生成的内容导入这里。", L"删除", L"已导入", L"无法导入"},
     {L"換皮膚…", L"把皮膚檔案拖到這裡，或按 Ctrl+V 貼上皮膚內容", L"選擇檔案…", L"貼上",
-     L"複製 AI 指南", L"已複製。把指南和貓的照片一起傳給 AI，再把它產生的內容匯入這裡。", L"刪除", L"已匯入", L"無法匯入", L"自訂"},
+     L"複製 AI 指南", L"已複製。把指南和貓的照片一起傳給 AI，再把它產生的內容匯入這裡。", L"刪除", L"已匯入", L"無法匯入"},
     {L"Change Skin…", L"Drop a skin file here, or press Ctrl+V to paste skin text", L"Choose File…", L"Paste",
-     L"Copy AI Guide", L"Copied. Send the guide and a photo of your cat to an AI, then import what it gives you here.", L"Delete", L"Imported", L"Couldn't import", L"Custom"},
+     L"Copy AI Guide", L"Copied. Send the guide and a photo of your cat to an AI, then import what it gives you here.", L"Delete", L"Imported", L"Couldn't import"},
     {L"スキンを変更…", L"スキンファイルをここにドロップするか、Ctrl+V でスキンの内容を貼り付けてください", L"ファイルを選択…", L"貼り付け",
-     L"AI ガイドをコピー", L"コピーしました。ガイドと猫の写真を AI に送り、生成された内容をここに読み込んでください。", L"削除", L"読み込みました", L"読み込めません", L"カスタム"},
+     L"AI ガイドをコピー", L"コピーしました。ガイドと猫の写真を AI に送り、生成された内容をここに読み込んでください。", L"削除", L"読み込みました", L"読み込めません"},
     {L"스킨 바꾸기…", L"스킨 파일을 여기에 끌어 놓거나 Ctrl+V로 스킨 내용을 붙여 넣으세요", L"파일 선택…", L"붙여넣기",
-     L"AI 가이드 복사", L"복사했습니다. 가이드와 고양이 사진을 AI에 보내고, 만들어 준 내용을 여기로 가져오세요.", L"삭제", L"가져왔습니다", L"가져올 수 없음", L"사용자 지정"},
+     L"AI 가이드 복사", L"복사했습니다. 가이드와 고양이 사진을 AI에 보내고, 만들어 준 내용을 여기로 가져오세요.", L"삭제", L"가져왔습니다", L"가져올 수 없음"},
     {L"Cambiar skin…", L"Suelta aquí un archivo de skin o pulsa Ctrl+V para pegar su contenido", L"Elegir archivo…", L"Pegar",
-     L"Copiar guía para IA", L"Copiado. Envía la guía y una foto de tu gato a una IA e importa aquí lo que te devuelva.", L"Eliminar", L"Importado", L"No se pudo importar", L"Personalizados"},
+     L"Copiar guía para IA", L"Copiado. Envía la guía y una foto de tu gato a una IA e importa aquí lo que te devuelva.", L"Eliminar", L"Importado", L"No se pudo importar"},
     {L"Changer de skin…", L"Déposez un fichier de skin ici, ou appuyez sur Ctrl+V pour coller son contenu", L"Choisir un fichier…", L"Coller",
-     L"Copier le guide pour l’IA", L"Copié. Envoyez le guide et une photo de votre chat à une IA, puis importez ici ce qu’elle vous renvoie.", L"Supprimer", L"Importé", L"Impossible d’importer", L"Personnalisés"},
+     L"Copier le guide pour l’IA", L"Copié. Envoyez le guide et une photo de votre chat à une IA, puis importez ici ce qu’elle vous renvoie.", L"Supprimer", L"Importé", L"Impossible d’importer"},
     {L"Сменить скин…", L"Перетащите сюда файл скина или нажмите Ctrl+V, чтобы вставить его содержимое", L"Выбрать файл…", L"Вставить",
-     L"Скопировать гайд для ИИ", L"Скопировано. Отправьте гайд и фото кошки ИИ, а затем импортируйте сюда полученный результат.", L"Удалить", L"Импортировано", L"Не удалось импортировать", L"Свои"},
+     L"Скопировать гайд для ИИ", L"Скопировано. Отправьте гайд и фото кошки ИИ, а затем импортируйте сюда полученный результат.", L"Удалить", L"Импортировано", L"Не удалось импортировать"},
     {L"เปลี่ยนสกิน…", L"ลากไฟล์สกินมาวางที่นี่ หรือกด Ctrl+V เพื่อวางเนื้อหาสกิน", L"เลือกไฟล์…", L"วาง",
-     L"คัดลอกคู่มือสำหรับ AI", L"คัดลอกแล้ว ส่งคู่มือพร้อมรูปแมวของคุณให้ AI แล้วนำสิ่งที่ได้มานำเข้าที่นี่", L"ลบ", L"นำเข้าแล้ว", L"นำเข้าไม่ได้", L"กำหนดเอง"},
+     L"คัดลอกคู่มือสำหรับ AI", L"คัดลอกแล้ว ส่งคู่มือพร้อมรูปแมวของคุณให้ AI แล้วนำสิ่งที่ได้มานำเข้าที่นี่", L"ลบ", L"นำเข้าแล้ว", L"นำเข้าไม่ได้"},
     {L"Đổi skin…", L"Kéo tệp skin vào đây hoặc nhấn Ctrl+V để dán nội dung", L"Chọn tệp…", L"Dán",
-     L"Sao chép hướng dẫn cho AI", L"Đã sao chép. Gửi hướng dẫn và ảnh mèo của bạn cho AI, rồi nhập kết quả vào đây.", L"Xóa", L"Đã nhập", L"Không thể nhập", L"Tùy chỉnh"},
+     L"Sao chép hướng dẫn cho AI", L"Đã sao chép. Gửi hướng dẫn và ảnh mèo của bạn cho AI, rồi nhập kết quả vào đây.", L"Xóa", L"Đã nhập", L"Không thể nhập"},
     {L"Skin ändern…", L"Ziehe eine Skin-Datei hierher oder drücke Ctrl+V, um den Inhalt einzufügen", L"Datei auswählen…", L"Einfügen",
-     L"KI-Anleitung kopieren", L"Kopiert. Schicke die Anleitung und ein Foto deiner Katze an eine KI und importiere das Ergebnis hier.", L"Löschen", L"Importiert", L"Import nicht möglich", L"Eigene"},
+     L"KI-Anleitung kopieren", L"Kopiert. Schicke die Anleitung und ein Foto deiner Katze an eine KI und importiere das Ergebnis hier.", L"Löschen", L"Importiert", L"Import nicht möglich"},
     {L"Ganti skin…", L"Seret file skin ke sini, atau tekan Ctrl+V untuk menempelkan isinya", L"Pilih file…", L"Tempel",
-     L"Salin panduan AI", L"Tersalin. Kirim panduan dan foto kucingmu ke AI, lalu impor hasilnya di sini.", L"Hapus", L"Diimpor", L"Tidak bisa mengimpor", L"Kustom"},
+     L"Salin panduan AI", L"Tersalin. Kirim panduan dan foto kucingmu ke AI, lalu impor hasilnya di sini.", L"Hapus", L"Diimpor", L"Tidak bisa mengimpor"},
     {L"Trocar skin…", L"Arraste um arquivo de skin para cá ou pressione Ctrl+V para colar o conteúdo", L"Escolher arquivo…", L"Colar",
-     L"Copiar guia para IA", L"Copiado. Envie o guia e uma foto do seu gato para uma IA e importe aqui o que ela gerar.", L"Apagar", L"Importado", L"Não foi possível importar", L"Personalizados"},
+     L"Copiar guia para IA", L"Copiado. Envie o guia e uma foto do seu gato para uma IA e importe aqui o que ela gerar.", L"Apagar", L"Importado", L"Não foi possível importar"},
     {L"Skin değiştir…", L"Bir skin dosyasını buraya sürükleyin veya içeriğini yapıştırmak için Ctrl+V’ye basın", L"Dosya seç…", L"Yapıştır",
-     L"Yapay zekâ rehberini kopyala", L"Kopyalandı. Rehberi ve kedinizin fotoğrafını bir yapay zekâya gönderin, sonra verdiği sonucu buraya aktarın.", L"Sil", L"İçe aktarıldı", L"İçe aktarılamadı", L"Özel"},
+     L"Yapay zekâ rehberini kopyala", L"Kopyalandı. Rehberi ve kedinizin fotoğrafını bir yapay zekâya gönderin, sonra verdiği sonucu buraya aktarın.", L"Sil", L"İçe aktarıldı", L"İçe aktarılamadı"},
     {L"Cambia skin…", L"Trascina qui un file skin oppure premi Ctrl+V per incollarne il contenuto", L"Scegli file…", L"Incolla",
-     L"Copia guida per l’IA", L"Copiato. Invia la guida e una foto del tuo gatto a un’IA, poi importa qui ciò che ti restituisce.", L"Elimina", L"Importato", L"Impossibile importare", L"Personalizzati"},
+     L"Copia guida per l’IA", L"Copiato. Invia la guida e una foto del tuo gatto a un’IA, poi importa qui ciò che ti restituisce.", L"Elimina", L"Importato", L"Impossibile importare"},
 };
 
 static_assert(std::size(skinTexts) == std::size(languageChoices));
@@ -207,21 +207,15 @@ HMENU TrayMenu::Create() const {
         AppendMenuW(menu, flags, choice.command, language.skinLabels[i]);
     }
     const auto& custom = library_.CustomSkins();
-    if (!custom.empty()) {
-        if (const HMENU submenu = CreatePopupMenu()) {
-            for (std::size_t i = 0; i < custom.size(); ++i) {
-                const auto& choice = custom[i];
-                const UINT flags = MF_STRING | (skinId_ == choice.id ? MF_CHECKED : MF_UNCHECKED);
-                std::wstring label = choice.skin->name;
-                for (std::size_t pos = label.find(L'&'); pos != std::wstring::npos; pos = label.find(L'&', pos + 2)) {
-                    label.insert(pos, 1, L'&');
-                }
-                AppendMenuW(submenu, flags, firstCustomCommand + static_cast<UINT>(i), label.c_str());
-            }
-            if (!AppendMenuW(menu, MF_POPUP, reinterpret_cast<UINT_PTR>(submenu), Text().custom)) {
-                DestroyMenu(submenu);
-            }
+    if (!custom.empty()) AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+    for (std::size_t i = 0; i < custom.size(); ++i) {
+        const auto& choice = custom[i];
+        const UINT flags = MF_STRING | (skinId_ == choice.id ? MF_CHECKED : MF_UNCHECKED);
+        std::wstring label = choice.skin->name;
+        for (std::size_t pos = label.find(L'&'); pos != std::wstring::npos; pos = label.find(L'&', pos + 2)) {
+            label.insert(pos, 1, L'&');
         }
+        AppendMenuW(menu, flags, firstCustomCommand + static_cast<UINT>(i), label.c_str());
     }
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu, MF_STRING, changeSkinCommand, Text().title);

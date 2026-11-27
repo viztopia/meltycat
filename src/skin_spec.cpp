@@ -267,6 +267,16 @@ SkinSpec ParseObject(const JsonObject& object) {
     spec.faceOutlineWidth = static_cast<float>(std::clamp(root.Number(L"faceOutlineWidth", 1), 0.5, 2.0));
     spec.eyeShine = static_cast<float>(std::clamp(root.Number(L"eyeShine", 0), 0.0, 1.0));
 
+    if (const auto paws = root.Array(L"missingFrontPaws")) {
+        for (unsigned int i = 0; i < paws.Size(); ++i) {
+            const auto item = paws.GetAt(i);
+            const auto side = item.ValueType() == JsonValueType::String ? item.GetString() : winrt::hstring{};
+            if (side == L"left") spec.missingLeftFrontPaw = true;
+            else if (side == L"right") spec.missingRightFrontPaw = true;
+            else root.Fail(L"missingFrontPaws[" + std::to_wstring(i) + L"]", L"expected \"left\" or \"right\"");
+        }
+    }
+
     const Fields palette(root.Value(L"palette", JsonValueType::Object, L"must be an object", true).GetObject(),
                          L"palette.");
     spec.coat = *palette.Paint(L"coat", true);

@@ -1,6 +1,7 @@
 #include "skin_window.h"
 
 #include "cat.h"
+#include "skin_resources.h"
 
 #include <commdlg.h>
 #include <shellapi.h>
@@ -40,10 +41,16 @@ SkinWindow::~SkinWindow() {
 void SkinWindow::Show(const std::filesystem::path& file) {
     if (!window_) {
         const HINSTANCE instance = GetModuleHandleW(nullptr);
-        const WNDCLASSW type{0, WindowProc, 0, 0, instance, nullptr,
-                             LoadCursorW(nullptr, IDC_ARROW), GetSysColorBrush(COLOR_WINDOW),
-                             nullptr, skinWindowClass};
-        if (!RegisterClassW(&type) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) return;
+        const auto loadIcon = [instance](int widthMetric, int heightMetric) {
+            return static_cast<HICON>(LoadImageW(instance, MAKEINTRESOURCEW(ID_APP_ICON), IMAGE_ICON,
+                                                GetSystemMetrics(widthMetric), GetSystemMetrics(heightMetric),
+                                                LR_SHARED));
+        };
+        const WNDCLASSEXW type{sizeof(WNDCLASSEXW), 0, WindowProc, 0, 0, instance,
+                               loadIcon(SM_CXICON, SM_CYICON), LoadCursorW(nullptr, IDC_ARROW),
+                               GetSysColorBrush(COLOR_WINDOW), nullptr, skinWindowClass,
+                               loadIcon(SM_CXSMICON, SM_CYSMICON)};
+        if (!RegisterClassExW(&type) && GetLastError() != ERROR_CLASS_ALREADY_EXISTS) return;
 
         POINT cursor{};
         GetCursorPos(&cursor);

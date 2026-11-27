@@ -1,3 +1,5 @@
+#define ID_APP_ICON 1
+
 #define ID_SKIN_RAGDOLL 101
 #define ID_SKIN_RAGDOLL_MIX 102
 #define ID_SKIN_MAINE_COON 103
