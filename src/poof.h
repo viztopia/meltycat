@@ -8,6 +8,8 @@
 #include <optional>
 
 enum class PerchEvent { None, Appear, Disappear, Move };
+enum class PoofMode { Quiet, Always, Off };
+enum class PoofStyle { None, Cloud, Fade };
 
 class PerchPresence {
 public:
@@ -25,6 +27,16 @@ private:
     HWND shown_ = nullptr;
     std::optional<Pending> pending_;
 };
+
+class PoofGate {
+public:
+    bool AllowsEffect(PerchEvent event, PerchPresence::Clock::time_point now, PoofMode mode);
+
+private:
+    std::optional<PerchPresence::Clock::time_point> lastChange_;
+};
+
+PoofStyle PoofStyleFor(bool puff, bool reduceMotion);
 
 constexpr int poofMargin = 32;
 constexpr auto poofDuration = std::chrono::milliseconds(550);

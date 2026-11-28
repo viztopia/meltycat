@@ -23,6 +23,22 @@ PerchEvent PerchPresence::Update(Clock::time_point now, HWND observed, bool hold
     return observed ? PerchEvent::Appear : PerchEvent::Disappear;
 }
 
+bool PoofGate::AllowsEffect(PerchEvent event, PerchPresence::Clock::time_point now, PoofMode mode) {
+    if (event == PerchEvent::None) return false;
+
+    // Every perch change restarts the quiet minute, including moves and suppressed effects.
+    constexpr auto quietMinute = std::chrono::minutes(1);
+    const bool wasQuiet = !lastChange_ || now - *lastChange_ >= quietMinute;
+    lastChange_ = now;
+    if (event == PerchEvent::Move) return false;
+    return mode == PoofMode::Always || (mode == PoofMode::Quiet && wasQuiet);
+}
+
+PoofStyle PoofStyleFor(bool puff, bool reduceMotion) {
+    if (!puff) return PoofStyle::None;
+    return reduceMotion ? PoofStyle::Fade : PoofStyle::Cloud;
+}
+
 namespace {
 
 const PointF poofCenter{100, 70};

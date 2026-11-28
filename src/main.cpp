@@ -25,6 +25,7 @@ constexpr ULONG_PTR importSkinMessage = 1;
 using Clock = cat::Animation::Clock;
 constexpr auto frameInterval = std::chrono::nanoseconds(1000000000) / 60;
 constexpr auto noPerchInterval = std::chrono::milliseconds(250);
+constexpr auto trayFocusHandoff = std::chrono::milliseconds(500);
 
 Clock::duration PerchFrameInterval(const cat::Pose& pose, bool recentInput) {
     if (recentInput || pose.hunt > 0 || pose.brace > 0 || pose.chatter > 0 ||
@@ -364,12 +365,14 @@ struct App {
     HWND overlay = nullptr;
     HWND menuOwner = nullptr;
     HWND trayPerch = nullptr;
+    Clock::time_point trayFocusHandoffUntil{};
     UINT taskbarCreated = RegisterWindowMessageW(L"TaskbarCreated");
     bool menuOpen = false;
     std::optional<DisplayedFrame> displayed;
     struct Arrival { Clock::time_point start; bool reduceMotion; };
     std::optional<Arrival> arrival;
     PerchPresence presence;
+    PoofGate poofGate;
     std::list<PoofWindow> poofs;
     POINT cursor{};
     Surface surface;
@@ -394,7 +397,11 @@ struct App {
     }
 
     HWND PerchForeground(HWND foreground) {
-        if (!foreground || (!trayPerch && !displayed)) return foreground;
+        // Windows can briefly report no foreground while dismissing the tray menu.
+        if (!foreground) {
+            return trayPerch && Clock::now() < trayFocusHandoffUntil ? trayPerch : nullptr;
+        }
+        if (!trayPerch && !displayed) return foreground;
         const HWND target = trayPerch ? trayPerch : displayed->placement.target;
         const HWND root = GetAncestor(foreground, GA_ROOT);
         if (root == menuOwner && menuOwner) return target;
@@ -417,11 +424,18 @@ struct App {
         const int primaryButton = GetSystemMetrics(SM_SWAPBUTTON) ? VK_RBUTTON : VK_LBUTTON;
         const bool holding = observed && !presence.Shown() && (GetAsyncKeyState(primaryButton) & 0x8000) != 0;
         const auto event = presence.Update(now, observed ? placement.target : nullptr, holding);
+        const bool puff = poofGate.AllowsEffect(event, now, trayMenu.PoofCloudMode());
+        const auto style = PoofStyleFor(puff, puff && ReduceMotion());
+        const bool fade = style == PoofStyle::Fade;
         if (event == PerchEvent::Disappear) {
             trayPerch = nullptr;
-            if (displayed) poofs.emplace_back(displayed->placement, now, ReduceMotion(), &*displayed);
+            if (displayed && style != PoofStyle::None) {
+                poofs.emplace_back(displayed->placement, now, fade, &*displayed);
+            }
         }
-        if (event == PerchEvent::Appear) arrival = Arrival{now, ReduceMotion()};
+        if (event == PerchEvent::Appear && style != PoofStyle::None) {
+            arrival = Arrival{now, fade};
+        }
         if (event == PerchEvent::Move) arrival.reset();
         poofs.remove_if([now](PoofWindow& effect) { return !effect.Advance(now); });
 
@@ -469,7 +483,7 @@ struct App {
         const DisplayedFrame frame{placement, pose, skin, resting, opacity};
         if (!RenderCat(surface, frame)) return nextFrame;
         if (!Present(overlay, surface, placement.origin, opacity, newPerch)) return nextFrame;
-        if (event == PerchEvent::Appear && arrival && !arrival->reduceMotion) {
+        if (event == PerchEvent::Appear && style == PoofStyle::Cloud) {
             // The arrival cloud is above the main overlay.
             poofs.emplace_back(placement, now, false);
             if (!poofs.back().Advance(now)) poofs.pop_back();
@@ -508,6 +522,7 @@ struct App {
     void RememberTrayPerch() {
         // Explorer may already have taken focus by the time the tray callback runs.
         trayPerch = displayed ? displayed->placement.target : nullptr;
+        trayFocusHandoffUntil = {};
     }
 
     void ShowTrayMenu() {
@@ -525,10 +540,13 @@ struct App {
                                             menuPosition.x, menuPosition.y, 0, menuOwner, nullptr);
         DestroyMenu(menu);
         PostMessageW(menuOwner, WM_NULL, 0, 0);
-        if (GetForegroundWindow() == menuOwner && previousForeground) {
-            SetForegroundWindow(previousForeground);
+        const HWND foreground = GetForegroundWindow();
+        if (!foreground || foreground == menuOwner) {
+            const HWND restore = previousForeground ? previousForeground : trayPerch;
+            if (restore && restore != menuOwner) SetForegroundWindow(restore);
         }
         ShowWindow(menuOwner, SW_HIDE);
+        trayFocusHandoffUntil = Clock::now() + trayFocusHandoff;
         menuOpen = false;
         HandleTrayCommand(command);
     }
