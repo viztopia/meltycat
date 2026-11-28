@@ -196,3 +196,116 @@ extension Language {
         "it": PoofText(title: "Nuvoletta d’entrata", modes: ["Dopo un minuto di calma", "Ogni volta", "Disattivata"]),
     ]
 }
+
+// Update menu items and alerts. {new} is the latest release, {current} the running version.
+struct UpdateText {
+    var checkNow: String
+    var automatically: String
+    var availableFormat: String
+    var upToDateFormat: String
+    var newerFormat: String
+    var failed: String
+    var download: String
+    var later: String
+    var ok: String
+
+    func available(_ new: String) -> String { availableFormat.replacingOccurrences(of: "{new}", with: new) }
+    func upToDate(_ current: String) -> String { upToDateFormat.replacingOccurrences(of: "{current}", with: current) }
+    func newer(_ new: String, _ current: String) -> String {
+        newerFormat.replacingOccurrences(of: "{new}", with: new).replacingOccurrences(of: "{current}", with: current)
+    }
+}
+
+extension Language {
+    var updateText: UpdateText { Self.updateTexts[setting] ?? Self.updateTexts["en"]! }
+
+    private static let updateTexts: [String: UpdateText] = [
+        "zh-CN": UpdateText(checkNow: "检查更新…", automatically: "自动检查更新", availableFormat: "有新版本：{new}…",
+                            upToDateFormat: "meltycat {current} 已是最新版本。",
+                            newerFormat: "meltycat {new} 已发布，你现在用的是 {current}。",
+                            failed: "无法检查更新，请稍后再试。", download: "下载", later: "以后再说", ok: "好"),
+        "zh-TW": UpdateText(checkNow: "檢查更新…", automatically: "自動檢查更新", availableFormat: "有新版本：{new}…",
+                            upToDateFormat: "meltycat {current} 已是最新版本。",
+                            newerFormat: "meltycat {new} 已發布，你目前使用的是 {current}。",
+                            failed: "無法檢查更新，請稍後再試。", download: "下載", later: "稍後再說", ok: "好"),
+        "en": UpdateText(checkNow: "Check for Updates…", automatically: "Check for Updates Automatically",
+                         availableFormat: "Update Available: {new}…",
+                         upToDateFormat: "meltycat {current} is the latest version.",
+                         newerFormat: "meltycat {new} is available. You have {current}.",
+                         failed: "Couldn't check for updates. Please try again later.", download: "Download",
+                         later: "Later", ok: "OK"),
+        "ja": UpdateText(checkNow: "アップデートを確認…", automatically: "アップデートを自動的に確認",
+                         availableFormat: "新しいバージョン {new} があります…",
+                         upToDateFormat: "meltycat {current} は最新バージョンです。",
+                         newerFormat: "meltycat {new} が公開されています。現在のバージョンは {current} です。",
+                         failed: "アップデートを確認できませんでした。しばらくしてからもう一度お試しください。",
+                         download: "ダウンロード", later: "後で", ok: "OK"),
+        "ko": UpdateText(checkNow: "업데이트 확인…", automatically: "자동으로 업데이트 확인",
+                         availableFormat: "새 버전 {new} 사용 가능…",
+                         upToDateFormat: "meltycat {current}은(는) 최신 버전입니다.",
+                         newerFormat: "meltycat {new}이(가) 나왔습니다. 현재 버전은 {current}입니다.",
+                         failed: "업데이트를 확인할 수 없습니다. 나중에 다시 시도하세요.", download: "다운로드",
+                         later: "나중에", ok: "확인"),
+        "es": UpdateText(checkNow: "Buscar actualizaciones…", automatically: "Buscar actualizaciones automáticamente",
+                         availableFormat: "Actualización disponible: {new}…",
+                         upToDateFormat: "meltycat {current} es la versión más reciente.",
+                         newerFormat: "meltycat {new} ya está disponible. Tienes la {current}.",
+                         failed: "No se pudo buscar actualizaciones. Inténtalo más tarde.", download: "Descargar",
+                         later: "Más tarde", ok: "Aceptar"),
+        "fr": UpdateText(checkNow: "Rechercher les mises à jour…",
+                         automatically: "Rechercher automatiquement les mises à jour",
+                         availableFormat: "Mise à jour disponible : {new}…",
+                         upToDateFormat: "meltycat {current} est la dernière version.",
+                         newerFormat: "meltycat {new} est disponible. Vous avez la {current}.",
+                         failed: "Impossible de rechercher les mises à jour. Réessayez plus tard.",
+                         download: "Télécharger", later: "Plus tard", ok: "OK"),
+        "ru": UpdateText(checkNow: "Проверить обновления…", automatically: "Проверять обновления автоматически",
+                         availableFormat: "Доступно обновление: {new}…",
+                         upToDateFormat: "meltycat {current} — последняя версия.",
+                         newerFormat: "Вышла meltycat {new}. У вас {current}.",
+                         failed: "Не удалось проверить обновления. Попробуйте позже.", download: "Скачать",
+                         later: "Позже", ok: "OK"),
+        "th": UpdateText(checkNow: "ตรวจหาอัปเดต…", automatically: "ตรวจหาอัปเดตอัตโนมัติ",
+                         availableFormat: "มีเวอร์ชันใหม่: {new}…",
+                         upToDateFormat: "meltycat {current} เป็นเวอร์ชันล่าสุดแล้ว",
+                         newerFormat: "meltycat {new} พร้อมให้ดาวน์โหลดแล้ว คุณใช้เวอร์ชัน {current} อยู่",
+                         failed: "ตรวจหาอัปเดตไม่ได้ โปรดลองอีกครั้งภายหลัง", download: "ดาวน์โหลด",
+                         later: "ไว้ทีหลัง", ok: "ตกลง"),
+        "vi": UpdateText(checkNow: "Kiểm tra cập nhật…", automatically: "Tự động kiểm tra cập nhật",
+                         availableFormat: "Có bản cập nhật: {new}…",
+                         upToDateFormat: "meltycat {current} là phiên bản mới nhất.",
+                         newerFormat: "Đã có meltycat {new}. Bạn đang dùng {current}.",
+                         failed: "Không thể kiểm tra cập nhật. Vui lòng thử lại sau.", download: "Tải về",
+                         later: "Để sau", ok: "OK"),
+        "de": UpdateText(checkNow: "Nach Updates suchen…", automatically: "Automatisch nach Updates suchen",
+                         availableFormat: "Update verfügbar: {new}…",
+                         upToDateFormat: "meltycat {current} ist die neueste Version.",
+                         newerFormat: "meltycat {new} ist verfügbar. Du hast {current}.",
+                         failed: "Konnte nicht nach Updates suchen. Bitte versuche es später erneut.",
+                         download: "Laden", later: "Später", ok: "OK"),
+        "id": UpdateText(checkNow: "Periksa Pembaruan…", automatically: "Periksa Pembaruan Secara Otomatis",
+                         availableFormat: "Pembaruan tersedia: {new}…",
+                         upToDateFormat: "meltycat {current} adalah versi terbaru.",
+                         newerFormat: "meltycat {new} sudah tersedia. Versi Anda {current}.",
+                         failed: "Tidak dapat memeriksa pembaruan. Coba lagi nanti.", download: "Unduh",
+                         later: "Nanti", ok: "OK"),
+        "pt": UpdateText(checkNow: "Procurar atualizações…", automatically: "Procurar atualizações automaticamente",
+                         availableFormat: "Atualização disponível: {new}…",
+                         upToDateFormat: "meltycat {current} é a versão mais recente.",
+                         newerFormat: "meltycat {new} já está disponível. Você tem a {current}.",
+                         failed: "Não foi possível procurar atualizações. Tente novamente mais tarde.",
+                         download: "Baixar", later: "Mais tarde", ok: "OK"),
+        "tr": UpdateText(checkNow: "Güncellemeleri Denetle…", automatically: "Güncellemeleri Otomatik Denetle",
+                         availableFormat: "Güncelleme var: {new}…",
+                         upToDateFormat: "meltycat {current} en son sürüm.",
+                         newerFormat: "meltycat {new} çıktı. Sizdeki sürüm {current}.",
+                         failed: "Güncellemeler denetlenemedi. Lütfen daha sonra tekrar deneyin.", download: "İndir",
+                         later: "Sonra", ok: "Tamam"),
+        "it": UpdateText(checkNow: "Controlla aggiornamenti…", automatically: "Controlla aggiornamenti automaticamente",
+                         availableFormat: "Aggiornamento disponibile: {new}…",
+                         upToDateFormat: "meltycat {current} è la versione più recente.",
+                         newerFormat: "meltycat {new} è disponibile. Hai la {current}.",
+                         failed: "Impossibile controllare gli aggiornamenti. Riprova più tardi.", download: "Scarica",
+                         later: "Più tardi", ok: "OK"),
+    ]
+}

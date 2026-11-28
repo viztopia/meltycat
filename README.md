@@ -36,6 +36,8 @@ There are a few more little details. We'll leave those for you to find!
 
 Nine built-in skins, 15 interface languages.
 
+The only time it goes online is to check GitHub for a new version, at most once a day. It fetches the latest version number and sends nothing about you. To turn this off, choose **Check for Updates…** in the menu and untick **Check for Updates Automatically**.
+
 ## Make your own cat
 
 1. Open the menu, choose **Change Skin…**, then click **Copy AI Guide**.

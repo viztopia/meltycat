@@ -8,7 +8,7 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
 FILES=()
-for name in CatRenderer Animation Placement Cadence Localization MenuIcon SkinSpec SkinLibrary Poof; do
+for name in CatRenderer Animation Placement Cadence Localization MenuIcon SkinSpec SkinLibrary Poof Updates; do
     FILES+=("$ROOT/Sources/$name.swift")
 done
 swiftc -swift-version 5 -framework CoreGraphics -framework ImageIO "${FILES[@]}" "$ROOT"/Tests/*.swift -o "$TMP/tests"

@@ -12,6 +12,16 @@ enum Settings {
         set { UserDefaults.standard.set(newValue.setting, forKey: "poof") }
     }
 
+    static var autoCheckUpdates: Bool {
+        get { UserDefaults.standard.object(forKey: "autoCheckUpdates") as? Bool ?? true }
+        set { UserDefaults.standard.set(newValue, forKey: "autoCheckUpdates") }
+    }
+
+    static var lastUpdateCheck: Date? {
+        get { UserDefaults.standard.object(forKey: "lastUpdateCheck") as? Date }
+        set { UserDefaults.standard.set(newValue, forKey: "lastUpdateCheck") }
+    }
+
     // Follows the system until a language is picked from the menu.
     static var language: Language {
         get { UserDefaults.standard.string(forKey: "language").flatMap(Language.init(setting:)) ?? Language.system() }

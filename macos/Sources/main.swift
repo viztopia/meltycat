@@ -25,6 +25,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     var appearStart: TimeInterval?
     var appearCloud = false
     var poofGate = PoofGate()
+    var availableUpdate: String?
     var lookingUp = false
     var screensAsleep = false
     var appearanceObservation: NSKeyValueObservation?
@@ -49,6 +50,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         appearanceObservation = statusItem?.button?.observe(\.effectiveAppearance) { [weak self] _, _ in
             DispatchQueue.main.async { self?.rebuildMenu() }
         }
+
+        autoCheckForUpdates()
+        // The app runs for days, so the daily check needs a clock of its own.
+        Timer.scheduledTimer(withTimeInterval: 60 * 60, repeats: true) { [weak self] _ in self?.autoCheckForUpdates() }
 
         let workspace = NSWorkspace.shared.notificationCenter
         // Switching apps changes the perch, so look right away instead of at the next slow poll.
@@ -193,6 +198,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         menu.addItem(withTitle: language.poofText.title, action: nil, keyEquivalent: "").submenu = poofMenu
         menu.addItem(.separator())
+        // One item: it names a newer release once one is known, and the automatic toggle lives in its alert.
+        let updates = language.updateText
+        let updateTitle = availableUpdate.map { updates.available(versionName($0)) } ?? updates.checkNow
+        menu.addItem(withTitle: updateTitle, action: #selector(checkForUpdatesNow), keyEquivalent: "").target = self
+        menu.addItem(.separator())
         menu.addItem(withTitle: language.quit, action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem?.menu = menu
     }
@@ -205,6 +215,60 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard let setting = sender.representedObject as? String, let language = Language(setting: setting) else { return }
         Settings.language = language
         rebuildMenu()
+    }
+
+    func versionName(_ tag: String) -> String { String(tag.drop(while: { $0 == "v" })) }
+
+    // A failed check is retried at the next hourly tick; only an answer starts the next day's wait.
+    func autoCheckForUpdates() {
+        guard Updates.autoCheckDue(now: Date(), last: Settings.lastUpdateCheck, enabled: Settings.autoCheckUpdates,
+                                   current: Updates.current) else { return }
+        Updates.fetchLatestTag { [weak self] tag in
+            guard let self, let tag else { return }
+            Settings.lastUpdateCheck = Date()
+            self.availableUpdate = Updates.isNewer(tag, than: Updates.current) ? tag : nil
+            self.rebuildMenu()
+        }
+    }
+
+    @objc func checkForUpdatesNow() {
+        Updates.fetchLatestTag { [weak self] tag in
+            guard let self else { return }
+            let text = Settings.language.updateText
+            let alert = NSAlert()
+            alert.messageText = "meltycat"
+            if let tag {
+                Settings.lastUpdateCheck = Date()
+                let newer = Updates.isNewer(tag, than: Updates.current)
+                self.availableUpdate = newer ? tag : nil
+                self.rebuildMenu()
+                if newer {
+                    alert.informativeText = text.newer(self.versionName(tag), Updates.current)
+                    alert.addButton(withTitle: text.download)
+                    alert.addButton(withTitle: text.later)
+                } else {
+                    alert.informativeText = text.upToDate(Updates.current)
+                    alert.addButton(withTitle: text.ok)
+                }
+            } else {
+                alert.informativeText = text.failed
+                alert.addButton(withTitle: text.ok)
+            }
+            alert.showsSuppressionButton = true
+            alert.suppressionButton?.title = text.automatically
+            alert.suppressionButton?.state = Settings.autoCheckUpdates ? .on : .off
+            // A menu bar app has no window of its own, so bring the alert forward.
+            NSApp.activate(ignoringOtherApps: true)
+            let response = alert.runModal()
+            Settings.autoCheckUpdates = alert.suppressionButton?.state == .on
+            if response == .alertFirstButtonReturn, self.availableUpdate != nil, tag != nil {
+                self.openDownloadPage()
+            }
+        }
+    }
+
+    func openDownloadPage() {
+        NSWorkspace.shared.open(Updates.downloadPage)
     }
 
     @objc func choosePoof(_ sender: NSMenuItem) {

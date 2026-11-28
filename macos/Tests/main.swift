@@ -585,6 +585,17 @@ do {
         check(text.modes.count == PoofMode.allCases.count && !text.modes.contains(where: \.isEmpty),
               "\(language.setting) names every poof mode")
     }
+    for language in Language.all {
+        let text = language.updateText
+        let all = [text.checkNow, text.automatically, text.available("9.9.9"), text.upToDate("9.9.9"),
+                   text.newer("9.9.9", "1.1.1"), text.failed, text.download, text.later, text.ok]
+        check(all.allSatisfy { !$0.isEmpty }, "\(language.setting) has every update string")
+        check(text.available("9.9.9").contains("9.9.9") && text.upToDate("9.9.9").contains("9.9.9")
+              && text.newer("9.9.9", "1.1.1").contains("9.9.9") && text.newer("9.9.9", "1.1.1").contains("1.1.1"),
+              "\(language.setting) update strings show the versions")
+        check(language.setting == "en" || text.checkNow != Language(setting: "en")!.updateText.checkNow,
+              "\(language.setting) has its own update strings")
+    }
     check(Language(setting: "zh-CN")?.skinText.changeSkin == "换皮肤…", "Chinese menu item")
     check(Language(setting: "en")?.skinText.changeSkin == "Change Skin…", "English menu item")
 }
@@ -654,6 +665,7 @@ do {
 }
 
 poofTests()
+updateTests()
 
 print(failures == 0 ? "OK" : "\(failures) failure(s)")
 exit(failures == 0 ? 0 : 1)
