@@ -1,7 +1,9 @@
 #include "animation.h"
 #include "poof.h"
 #include "skin_window.h"
+#include "updates.h"
 
+#include <commctrl.h>
 #include <dwmapi.h>
 #include <roapi.h>
 #include <shellapi.h>
@@ -11,16 +13,20 @@
 #include <array>
 #include <cmath>
 #include <cwchar>
+#include <future>
 #include <iterator>
 #include <list>
 #include <optional>
 #include <string_view>
+#include <thread>
 
 namespace {
 
 constexpr wchar_t windowClass[] = L"MeltyCat.Overlay";
 constexpr UINT trayMessage = WM_APP + 1;
 constexpr UINT_PTR trayTimer = 2;
+constexpr UINT_PTR updateTimer = 3;
+constexpr UINT updateIntervalMs = 60 * 60 * 1000;
 constexpr ULONG_PTR importSkinMessage = 1;
 using Clock = cat::Animation::Clock;
 constexpr auto frameInterval = std::chrono::nanoseconds(1000000000) / 60;
@@ -381,6 +387,10 @@ struct App {
     SkinLibrary skins;
     TrayMenu trayMenu{skins};
     SkinWindow skinWindow{skins, trayMenu, [this] { RefreshTrayIcon(); }};
+    std::future<std::optional<std::wstring>> updateRequest;
+    std::wstring availableUpdate;
+    bool showUpdateResult = false;
+    bool updateDialogOpen = false;
 
     ~App() {
         if (menuOwner) DestroyWindow(menuOwner);
@@ -492,10 +502,89 @@ struct App {
         return nextFrame;
     }
 
+    void StartUpdateCheck(bool manual) {
+        if (updateDialogOpen) return;
+        if (!manual && !updates::AutoCheckDue(updates::Now(), trayMenu.LastUpdateCheck(),
+                                              trayMenu.AutoCheckUpdates(), updates::CurrentVersion())) {
+            return;
+        }
+        if (updateRequest.valid()) {
+            // A manual click can use the same request and still show its result.
+            showUpdateResult = showUpdateResult || manual;
+            return;
+        }
+        showUpdateResult = manual;
+        std::packaged_task<std::optional<std::wstring>()> fetch(updates::FetchLatestTag);
+        auto result = fetch.get_future();
+        try {
+            // The worker owns the request and shares no window or App state.
+            std::thread(std::move(fetch)).detach();
+            updateRequest = std::move(result);
+        } catch (const std::system_error&) {
+            if (manual) ShowUpdateDialog(false, false);
+        }
+    }
+
+    void FinishUpdateCheck() {
+        if (!updateRequest.valid() ||
+            updateRequest.wait_for(std::chrono::seconds::zero()) != std::future_status::ready) {
+            return;
+        }
+        std::optional<std::wstring> tag;
+        try {
+            tag = updateRequest.get();
+        } catch (const std::exception&) {
+            // A worker failure has the same result as a failed request.
+        }
+        const bool newer = tag && updates::IsNewer(*tag, updates::CurrentVersion());
+        if (tag) {
+            trayMenu.RecordUpdateCheck(updates::Now());
+            availableUpdate = newer ? updates::VersionName(*tag) : std::wstring_view{};
+        }
+        if (showUpdateResult) ShowUpdateDialog(tag.has_value(), newer);
+    }
+
+    void ShowUpdateDialog(bool answered, bool newer) {
+        const auto& text = trayMenu.UpdateLabels();
+        const auto current = updates::VersionName(updates::CurrentVersion());
+        const std::wstring message = newer ? text.Newer(availableUpdate, current)
+                                           : answered ? text.UpToDate(current) : text.failed;
+        const TASKDIALOG_BUTTON buttons[]{
+            {newer ? IDYES : IDOK, newer ? text.download : text.ok},
+            {IDCANCEL, text.later},
+        };
+        const bool wasEnabled = trayMenu.AutoCheckUpdates();
+        TASKDIALOGCONFIG dialog{};
+        dialog.cbSize = sizeof(dialog);
+        dialog.hwndParent = overlay;
+        dialog.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION;
+        if (wasEnabled) dialog.dwFlags |= TDF_VERIFICATION_FLAG_CHECKED;
+        dialog.pszWindowTitle = L"meltycat";
+        dialog.pszContent = message.c_str();
+        dialog.cButtons = newer ? 2 : 1;
+        dialog.pButtons = buttons;
+        dialog.pszVerificationText = text.automatically;
+        BOOL enabled = wasEnabled;
+        int pressed = 0;
+        updateDialogOpen = true;
+        const auto result = TaskDialogIndirect(&dialog, &pressed, nullptr, &enabled);
+        updateDialogOpen = false;
+        if (FAILED(result)) return;
+        trayMenu.SetAutoCheckUpdates(enabled != FALSE);
+        if (newer && pressed == IDYES) {
+            ShellExecuteW(nullptr, L"open", updates::downloadPage, nullptr, nullptr, SW_SHOWNORMAL);
+        }
+        if (!wasEnabled && enabled) StartUpdateCheck(false);
+    }
+
     void HandleTrayCommand(UINT command) {
         const auto action = trayMenu.Select(command);
         if (action == TrayMenu::Action::Exit) {
             DestroyWindow(overlay);
+            return;
+        }
+        if (action == TrayMenu::Action::CheckForUpdates) {
+            StartUpdateCheck(true);
             return;
         }
         if (action == TrayMenu::Action::ChangeSkin) {
@@ -527,7 +616,7 @@ struct App {
 
     void ShowTrayMenu() {
         if (menuOpen) return;
-        const HMENU menu = trayMenu.Create();
+        const HMENU menu = trayMenu.Create(availableUpdate);
         if (!menu) return;
         RememberTrayPerch();
         menuOpen = true;
@@ -583,6 +672,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
     }
     case WM_TIMER:
         if (wParam == trayTimer) app->RegisterTrayIcon();
+        if (wParam == updateTimer) app->StartUpdateCheck(false);
         return 0;
     case trayMessage:
         if (lParam == WM_LBUTTONDOWN || lParam == WM_RBUTTONDOWN) app->RememberTrayPerch();
@@ -590,6 +680,7 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
         return 0;
     case WM_DESTROY:
         KillTimer(window, trayTimer);
+        KillTimer(window, updateTimer);
         Shell_NotifyIconW(NIM_DELETE, &app->tray);
         PostQuitMessage(0);
         return 0;
@@ -625,6 +716,8 @@ int Run(HINSTANCE instance, const std::filesystem::path& skinFile) {
     }
 
     app.RegisterTrayIcon();
+    SetTimer(app.overlay, updateTimer, updateIntervalMs, nullptr);
+    app.StartUpdateCheck(false);
     RegisterSkinAssociation();
     if (!skinFile.empty()) app.skinWindow.Show(skinFile);
     FrameTimer timer;
@@ -648,6 +741,7 @@ int Run(HINSTANCE instance, const std::filesystem::path& skinFile) {
             TranslateMessage(&message);
             DispatchMessageW(&message);
         }
+        if (IsWindow(app.overlay)) app.FinishUpdateCheck();
     }
     DestroyWindow(app.overlay);
     return 1;

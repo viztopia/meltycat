@@ -1,6 +1,7 @@
 #include "tray_menu.h"
 
 #include <algorithm>
+#include <charconv>
 #include <fstream>
 #include <iterator>
 #include <optional>
@@ -11,6 +12,7 @@ namespace {
 constexpr UINT exitCommand = 1;
 
 constexpr UINT changeSkinCommand = 25;
+constexpr UINT checkForUpdatesCommand = 30;
 constexpr UINT firstCustomCommand = 1000;
 
 constexpr struct { UINT command; const char* setting; } skinChoices[]{
@@ -118,6 +120,76 @@ constexpr PoofText poofTexts[]{
 
 static_assert(std::size(poofTexts) == std::size(languageChoices));
 
+constexpr UpdateText updateTexts[]{
+    {L"检查更新…", L"自动检查更新", L"有新版本：{new}…",
+     L"meltycat {current} 已是最新版本。",
+     L"meltycat {new} 已发布，你现在用的是 {current}。",
+     L"无法检查更新，请稍后再试。", L"下载", L"以后再说", L"好"},
+    {L"檢查更新…", L"自動檢查更新", L"有新版本：{new}…",
+     L"meltycat {current} 已是最新版本。",
+     L"meltycat {new} 已發布，你目前使用的是 {current}。",
+     L"無法檢查更新，請稍後再試。", L"下載", L"稍後再說", L"好"},
+    {L"Check for Updates…", L"Check for Updates Automatically", L"Update Available: {new}…",
+     L"meltycat {current} is the latest version.",
+     L"meltycat {new} is available. You have {current}.",
+     L"Couldn't check for updates. Please try again later.", L"Download", L"Later", L"OK"},
+    {L"アップデートを確認…", L"アップデートを自動的に確認", L"新しいバージョン {new} があります…",
+     L"meltycat {current} は最新バージョンです。",
+     L"meltycat {new} が公開されています。現在のバージョンは {current} です。",
+     L"アップデートを確認できませんでした。しばらくしてからもう一度お試しください。", L"ダウンロード", L"後で", L"OK"},
+    {L"업데이트 확인…", L"자동으로 업데이트 확인", L"새 버전 {new} 사용 가능…",
+     L"meltycat {current}은(는) 최신 버전입니다.",
+     L"meltycat {new}이(가) 나왔습니다. 현재 버전은 {current}입니다.",
+     L"업데이트를 확인할 수 없습니다. 나중에 다시 시도하세요.", L"다운로드", L"나중에", L"확인"},
+    {L"Buscar actualizaciones…", L"Buscar actualizaciones automáticamente", L"Actualización disponible: {new}…",
+     L"meltycat {current} es la versión más reciente.",
+     L"meltycat {new} ya está disponible. Tienes la {current}.",
+     L"No se pudo buscar actualizaciones. Inténtalo más tarde.", L"Descargar", L"Más tarde", L"Aceptar"},
+    {L"Rechercher les mises à jour…", L"Rechercher automatiquement les mises à jour", L"Mise à jour disponible : {new}…",
+     L"meltycat {current} est la dernière version.",
+     L"meltycat {new} est disponible. Vous avez la {current}.",
+     L"Impossible de rechercher les mises à jour. Réessayez plus tard.", L"Télécharger", L"Plus tard", L"OK"},
+    {L"Проверить обновления…", L"Проверять обновления автоматически", L"Доступно обновление: {new}…",
+     L"meltycat {current} — последняя версия.",
+     L"Вышла meltycat {new}. У вас {current}.",
+     L"Не удалось проверить обновления. Попробуйте позже.", L"Скачать", L"Позже", L"OK"},
+    {L"ตรวจหาอัปเดต…", L"ตรวจหาอัปเดตอัตโนมัติ", L"มีเวอร์ชันใหม่: {new}…",
+     L"meltycat {current} เป็นเวอร์ชันล่าสุดแล้ว",
+     L"meltycat {new} พร้อมให้ดาวน์โหลดแล้ว คุณใช้เวอร์ชัน {current} อยู่",
+     L"ตรวจหาอัปเดตไม่ได้ โปรดลองอีกครั้งภายหลัง", L"ดาวน์โหลด", L"ไว้ทีหลัง", L"ตกลง"},
+    {L"Kiểm tra cập nhật…", L"Tự động kiểm tra cập nhật", L"Có bản cập nhật: {new}…",
+     L"meltycat {current} là phiên bản mới nhất.",
+     L"Đã có meltycat {new}. Bạn đang dùng {current}.",
+     L"Không thể kiểm tra cập nhật. Vui lòng thử lại sau.", L"Tải về", L"Để sau", L"OK"},
+    {L"Nach Updates suchen…", L"Automatisch nach Updates suchen", L"Update verfügbar: {new}…",
+     L"meltycat {current} ist die neueste Version.",
+     L"meltycat {new} ist verfügbar. Du hast {current}.",
+     L"Konnte nicht nach Updates suchen. Bitte versuche es später erneut.", L"Laden", L"Später", L"OK"},
+    {L"Periksa Pembaruan…", L"Periksa Pembaruan Secara Otomatis", L"Pembaruan tersedia: {new}…",
+     L"meltycat {current} adalah versi terbaru.",
+     L"meltycat {new} sudah tersedia. Versi Anda {current}.",
+     L"Tidak dapat memeriksa pembaruan. Coba lagi nanti.", L"Unduh", L"Nanti", L"OK"},
+    {L"Procurar atualizações…", L"Procurar atualizações automaticamente", L"Atualização disponível: {new}…",
+     L"meltycat {current} é a versão mais recente.",
+     L"meltycat {new} já está disponível. Você tem a {current}.",
+     L"Não foi possível procurar atualizações. Tente novamente mais tarde.", L"Baixar", L"Mais tarde", L"OK"},
+    {L"Güncellemeleri Denetle…", L"Güncellemeleri Otomatik Denetle", L"Güncelleme var: {new}…",
+     L"meltycat {current} en son sürüm.",
+     L"meltycat {new} çıktı. Sizdeki sürüm {current}.",
+     L"Güncellemeler denetlenemedi. Lütfen daha sonra tekrar deneyin.", L"İndir", L"Sonra", L"Tamam"},
+    {L"Controlla aggiornamenti…", L"Controlla aggiornamenti automaticamente", L"Aggiornamento disponibile: {new}…",
+     L"meltycat {current} è la versione più recente.",
+     L"meltycat {new} è disponibile. Hai la {current}.",
+     L"Impossibile controllare gli aggiornamenti. Riprova più tardi.", L"Scarica", L"Più tardi", L"OK"},
+};
+
+static_assert(std::size(updateTexts) == std::size(languageChoices));
+
+void ReplacePlaceholder(std::wstring& text, std::wstring_view placeholder, std::wstring_view value) {
+    const auto position = text.find(placeholder);
+    if (position != std::wstring::npos) text.replace(position, placeholder.size(), value);
+}
+
 std::string ReadSetting(const std::filesystem::path& path) {
     std::ifstream config(path);
     std::string setting;
@@ -196,6 +268,25 @@ void SaveSetting(const std::filesystem::path& path, std::string_view setting) {
 
 } // namespace
 
+std::wstring UpdateText::Available(std::wstring_view version) const {
+    std::wstring result(availableFormat);
+    ReplacePlaceholder(result, L"{new}", version);
+    return result;
+}
+
+std::wstring UpdateText::UpToDate(std::wstring_view current) const {
+    std::wstring result(upToDateFormat);
+    ReplacePlaceholder(result, L"{current}", current);
+    return result;
+}
+
+std::wstring UpdateText::Newer(std::wstring_view version, std::wstring_view current) const {
+    std::wstring result(newerFormat);
+    ReplacePlaceholder(result, L"{current}", current);
+    ReplacePlaceholder(result, L"{new}", version);
+    return result;
+}
+
 TrayMenu::TrayMenu(const SkinLibrary& library) : library_(library) {
     const auto executable = ExecutablePath();
     if (!executable.empty()) {
@@ -203,6 +294,8 @@ TrayMenu::TrayMenu(const SkinLibrary& library) : library_(library) {
         skinSettings_ = directory / L"meltycat-skin.txt";
         languageSettings_ = directory / L"meltycat-language.txt";
         poofSettings_ = directory / L"meltycat-poof.txt";
+        autoUpdateSettings_ = directory / L"meltycat-update-check.txt";
+        lastUpdateSettings_ = directory / L"meltycat-last-update-check.txt";
     }
     skinId_ = ReadSetting(skinSettings_);
     skin_ = library_.Find(skinId_);
@@ -218,9 +311,27 @@ TrayMenu::TrayMenu(const SkinLibrary& library) : library_(library) {
             break;
         }
     }
+    autoCheckUpdates_ = ReadSetting(autoUpdateSettings_) != "off";
+    const auto lastCheck = ReadSetting(lastUpdateSettings_);
+    std::chrono::seconds::rep seconds = 0;
+    const auto result = std::from_chars(lastCheck.data(), lastCheck.data() + lastCheck.size(), seconds);
+    if (result.ec == std::errc{} && result.ptr == lastCheck.data() + lastCheck.size() && seconds >= 0) {
+        lastUpdateCheck_ = std::chrono::seconds(seconds);
+    }
 }
 
 const SkinText& TrayMenu::Text() const { return skinTexts[languageIndex_]; }
+const UpdateText& TrayMenu::UpdateLabels() const { return updateTexts[languageIndex_]; }
+
+void TrayMenu::SetAutoCheckUpdates(bool enabled) {
+    autoCheckUpdates_ = enabled;
+    SaveSetting(autoUpdateSettings_, enabled ? "on" : "off");
+}
+
+void TrayMenu::RecordUpdateCheck(std::chrono::seconds time) {
+    lastUpdateCheck_ = time;
+    SaveSetting(lastUpdateSettings_, std::to_string(time.count()));
+}
 
 bool TrayMenu::SetSkin(std::string_view id) {
     if (id == skinId_) return false;
@@ -232,7 +343,7 @@ bool TrayMenu::SetSkin(std::string_view id) {
     return true;
 }
 
-HMENU TrayMenu::Create() const {
+HMENU TrayMenu::Create(std::wstring_view availableUpdate) const {
     const HMENU menu = CreatePopupMenu();
     if (!menu) return nullptr;
     const auto& language = languageChoices[languageIndex_];
@@ -280,6 +391,10 @@ HMENU TrayMenu::Create() const {
         }
     }
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
+    const auto& update = UpdateLabels();
+    const std::wstring updateTitle = availableUpdate.empty() ? update.checkNow : update.Available(availableUpdate);
+    AppendMenuW(menu, MF_STRING, checkForUpdatesCommand, updateTitle.c_str());
+    AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu, MF_STRING, exitCommand, language.exitLabel);
     return menu;
 }
@@ -287,6 +402,7 @@ HMENU TrayMenu::Create() const {
 TrayMenu::Action TrayMenu::Select(UINT command) {
     if (command == exitCommand) return Action::Exit;
     if (command == changeSkinCommand) return Action::ChangeSkin;
+    if (command == checkForUpdatesCommand) return Action::CheckForUpdates;
 
     for (std::size_t i = 0; i < std::size(languageChoices); ++i) {
         const auto& choice = languageChoices[i];
